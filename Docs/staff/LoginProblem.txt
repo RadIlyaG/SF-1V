@@ -1,0 +1,13 @@
+Login2App i:17 10:03:07   17/06/2020 buffer:<
+
+
+SF1v login: Completed OK
+
+>
+
+10:03:07   17/06/2020 Send: com:2, ret:0 tt:0.074364sec, sent=su\r,  expected=<assword>, buffer=<su Password: >
+
+10:03:07   17/06/2020 Send: com:2, ret:0 tt:0.440647sec, sent=1234\r,  expected=<SecFlow-1v#>, buffer=< login[2901]: pam_unix(login:session): session opened for user su by LOGIN(uid=0) login[2959]: root login on 'console' SecFlow-1v# >
+
+10:03:07   17/06/2020 Send: com:2, ret:0 tt:0.084088sec, sent=show system info\r,  expected=<SecFlow-1v#>, buffer=<show system info Error: unknown command - show SecFlow-1v# >
+
