@@ -4385,7 +4385,8 @@ proc PlcAnalogInputPerf {} {
           set min 800
           set max 1600
         } else {
-          if {$plc=="PLC24" || $plc=="PLC"} {
+          # 10:48 24/07/2023 if {$plc=="PLC24" || $plc=="PLC"} {}
+          if {$plc=="PLC24"} {
             set min 5200
             set max 5900
           } else {
