@@ -64,7 +64,7 @@ proc SQliteAddLine {} {
   if ![info exist gaSet(ButRunTime)] {
     set gaSet(ButRunTime) [expr {$stopTime - 600}]
   }
-  foreach {date tim} [split [clock format $stopTime -format "%Y.%m.%d %H.%M.%S"] " "] {break}  
+  foreach {date tim} [split [clock format $stopTime -format "%Y.%m.%d %H:%M:%S"] " "] {break}  
   #foreach {date tim} [split [clock format [clock seconds] -format "%Y.%m.%d %H.%M.%S"] " "] {break}
   set status $gaSet(runStatus)
   if {$status=="Pass"} {
@@ -140,7 +140,7 @@ proc AddLine {} {
   set gaSet(pair) wert
   set failTestsList sdfsdf
   set failReason sadas
-  foreach {date tim} [split [clock format [clock seconds] -format "%Y.%m.%d %H.%M.%S"] " "] {break}
+  foreach {date tim} [split [clock format [clock seconds] -format "%Y.%m.%d %H:%M:%S"] " "] {break}
   set operator "ILYA GINZBURG"
   
   for {set tr 1} {$tr <= 6} {incr tr} {
