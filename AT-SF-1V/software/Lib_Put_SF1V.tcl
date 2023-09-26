@@ -2766,6 +2766,10 @@ proc ReadImei {} {
           set gaSet(fail) "Set modem get iccid fail"
           return $ret 
         }
+        if {[string match {*failed to communicate with modem*} $buffer]} {
+          set gaSet(fail) "Failed to communicate with modem"
+          return -1
+        }
       }
       regexp {ICCID:\s+(\w+)\s} $buffer ma icc
       puts "icc.1 : <$icc>"
