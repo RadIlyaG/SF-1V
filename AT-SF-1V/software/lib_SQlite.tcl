@@ -55,7 +55,7 @@ proc SQliteAddLine {} {
   }
   if {$gaSet(1.barcode1.IdMacLink)!="noLink"} {
     puts "do not report about passed unit"
-    return 0
+    # 10:47 04/10/2023 return 0
   }
   set uut $gaSet(DutFullName)
   set hostDescription $gaSet(hostDescription)
