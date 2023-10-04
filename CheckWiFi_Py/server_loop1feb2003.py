@@ -56,13 +56,13 @@ def sftp_loop(loop):
                     
             list_interfaces = all_interfaces.split('\n\n')
             qty_interfaces = len(list_interfaces)
-            if qty_interfaces != 13:
-                print(f'\nQty of on interfaces should be 11!! Now is {qty_interfaces-2} !!!\n')
+            if qty_interfaces != 9:
+                print(f'\nQty of on interfaces should be 7!! Now is {qty_interfaces-2} !!!\n')
               
             pc_intf_mac_dict = {}
-            for interface in all_interfaces.split('\n\n')[1:qty_interfaces-1]:
+            for interface in all_interfaces.split('\n\n')[1:8]:
                 m = re.search(f'Name[:\s]+(Wi-Fi\s?\d?)([A-Za-z0-9\\s\\#\\-\:]+)Physical address\\s+\\:\\s+([a-f0-9\:]+)\s', interface)
-                m = re.search(f'Name[:\s]+(Wi-Fi\s?\d*)([A-Za-z0-9\\s\\#\\-\:]+)Physical address\\s+\\:\\s+([a-f0-9\:]+)\\s+[a-zA-z\:\s]+State\\s+\\:\\s+([a-z]+)', interface)
+                m = re.search(f'Name[:\s]+(Wi-Fi\s?\d*)([A-Za-z0-9\\s\\#\\-\:]+)Physical address\\s+\\:\\s+([a-f0-9\:]+)\\s+State\\s+\\:\\s+([a-z]+)', interface)
                 if m != None:
                     pc_intf_name = m.group(1).rstrip()
                     pc_intf_mac  = m.group(3).rstrip()
@@ -79,8 +79,7 @@ def sftp_loop(loop):
             
             for fil in list_files:
                 if re.search('startmeasur', fil):
-                    wifi_net = fil[17:]      
-                    print(f'wifi_net:<{wifi_net}>')
+                    wifi_net = fil[17:]            
                     if wifi_net == 'at-secfl1v-1-10_1':
                         rsrv_mac = '28:ee:52:1c:7b:4c'
                     elif wifi_net == 'at-secfl1v-2-10_1':
@@ -95,18 +94,10 @@ def sftp_loop(loop):
                         rsrv_mac = '28:ee:52:18:17:ee'
                     elif wifi_net == 'at-sf1p-1-10_2':
                         rsrv_mac = '28:ee:52:18:18:17'
-                    elif wifi_net == 'at-sf1p-4-w10_1':
+                    elif wifi_net == 'at-sw1p-4-w10_1':
                         rsrv_mac = '7c:c2:c6:1c:5d:10'
-                    elif wifi_net == 'at-sf1p-4-w10_2':
+                    elif wifi_net == 'at-sw1p-4-w10_2':
                         rsrv_mac = '7c:c2:c6:11:e1:0a'
-                    elif wifi_net == 'at-sf1p-2-w10_1':
-                        rsrv_mac = '78:8c:b5:29:ce:b4'
-                    elif wifi_net == 'at-sf1p-2-w10_2':
-                        rsrv_mac = '78:8c:b5:29:d0:5c'
-                    elif wifi_net == 'at-sf1p-3-w10_1':
-                        rsrv_mac = '78:8c:b5:29:d1:ff'
-                    elif wifi_net == 'at-sf1p-3-w10_2':
-                        rsrv_mac = '78:8c:b5:29:e1:c6'
                     else:
                         intf = 'NA'
                         rsrv_mac = 'NA'
