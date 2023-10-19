@@ -637,6 +637,9 @@ proc Mac_BarCode {run} {
     }  
   }
   
+  set ret [ImeiSQliteAddLine]
+  if {$ret!=0} {return $ret}
+  
   set ret [RegBC]    
   return $ret
 }

@@ -198,3 +198,130 @@ proc LockedDBtoDB {} {
   SQliteClose
   return 0
 }
+# ***************************************************************************
+# ImeiSQliteOpen
+# ***************************************************************************
+proc ImeiSQliteOpen {} {
+  global gaSet
+  puts "[MyTime] ImeiSQliteOpen" ; update 
+  if {$gaSet(radNet)} {  
+    set dbFile \\\\prod-svm1\\tds\\temp\\SQLiteDB\\Imei.db
+    if ![file exists $dbFile] {
+      set gaSet(fail) "No Imei.db file or it's not reachable"
+      return -1
+    }
+    sqlite3 gaSet(dataBaseImei) $dbFile 
+    gaSet(dataBaseImei) timeout 5000
+    
+    set res [gaSet(dataBaseImei) eval {SELECT name FROM sqlite_master WHERE type='table' AND name='tbl'}]
+    if {$res==""} {
+      gaSet(dataBaseImei) eval {CREATE TABLE tbl(Barcode, RadName, AttName, DevId, Sw, Imei, Date, Time, HostDescription, Spare1, Spare2, Spare3, Spare4, Spare5, Spare6)}
+    }
+    puts "[MyTime] DataBase is open well!"  
+  } else {
+    puts "[MyTime] DataBase is not open - out of RadNet"
+    return -1
+  }  
+  return 0
+}
+# ***************************************************************************
+# ImeiSQliteAddLine
+# ***************************************************************************
+proc ImeiSQliteAddLine {} {
+  global gaSet
+  set Barcode $gaSet(1.barcode1)
+  puts "ImeiSQliteAddLine Barcode:<$Barcode>"
+  
+  set RadName [RetriveIdTraceData $Barcode MKTItem4Barcode]
+  puts "ImeiSQliteAddLine RadName:<$RadName>"
+  if {$RadName=="-1"} {
+    return -1
+  }
+  
+  switch -exact -- $RadName {
+    SF-1V/E2/48V/4U1S/POE/2RS/L4/G/L4 {set AttName SecFlow-1v;                         set DevId BI001996}
+    SF-1V/E2/12v/4U1S/2RSM/L4/G/GO    {set AttName SF-1V/E2/12v/4U1S/2RSM/L4/G/GO;     set DevId BI006387}
+    SF-1P/E1/DC/4U2S/2RSM/L4/G/LRA/2R {set AttName SF-1P/E1/DC/4U2S/2RSM/L4/G/LRA/2R ; set DevId BI006054}
+    ETX-203AX-T/LTE/GE30/2SFP/3UTP/L4 {set AttName ETX-203AX-T;                        set DevId BI003495}
+    default                           {set AttName $RadName;                           set DevId NoLog}
+  }
+  puts "ImeiSQliteAddLine AttName:<$AttName> DevId:<$DevId>"
+  if {$DevId=="NoLog"} {
+    return 0
+  }
+  
+  set Sw $gaSet(SWver)
+  puts "ImeiSQliteAddLine Sw:<$Sw>"
+  
+  set cellQty [string index $gaSet(dutFam.cell) 0]
+  if {$cellQty=="1"} {
+    set Imei "$gaSet(1.imei1)"
+  } elseif {$cellQty=="2"} {
+    set Imei "${gaSet(1.imei1)}_$gaSet(1.imei2)"
+  }
+  puts "ImeiSQliteAddLine Imei:<$Imei>"
+  
+  set HostDescription $gaSet(hostDescription)
+  puts "ImeiSQliteAddLine HostDescription:<$HostDescription>"
+  
+  set stopTime [clock seconds]
+  foreach {date tim} [split [clock format $stopTime -format "%Y.%m.%d %H:%M:%S"] " "] {puts "ImeiSQliteAddLine date:<$date> tim:<$tim>"}  
+  
+  for {set sp 1} {$sp<=6} {incr sp} {
+    set Spare$sp -
+    puts "ImeiSQliteAddLine Spare$sp:<[set Spare$sp]>"
+  }
+  
+  # for {set tr 1} {$tr <= 6} {incr tr} {
+    # if [catch {UpdateDB $barcode $UutName $hostDescription $date $tim $status $failTestsList $failReason $operator} res] {
+      # set res "Try${tr}_fail.$res"
+      # puts "[MyTime] Web DataBase is not updated. Try:<$tr>. Res:<$res>" ; update
+      # after [expr {int(rand()*3000+60)}] 
+    # } else {
+      # puts "[MyTime] Web DataBase is updated well!"
+      # set res "Try $tr passed"
+      # break
+    # }
+  # }
+  
+   
+  
+    set ret [ImeiSQliteOpen]
+    if {$ret!=0} {return $ret}
+    
+    for {set tr 1} {$tr <= 6} {incr tr} {
+      if [catch {gaSet(dataBaseImei) eval {INSERT INTO tbl VALUES($Barcode,$RadName,$AttName,$DevId,$Sw,$Imei,$date,$tim,$HostDescription,$Spare1,$Spare2,$Spare3,$Spare4,$Spare5,$Spare6)}} res] {
+        set res "Try${tr}_fail.$res"
+        puts "[MyTime] ImeiDataBase is not updated. Try:<$tr>. Res:<$res>" ; update
+        after [expr {int(rand()*3000+60)}] 
+      } else {
+        puts "[MyTime] ImeiDataBase is updated well!"
+        set res "Try $tr passed"
+        break
+      }
+    }
+    ImeiSQliteClose
+
+  set id [open c:/logs/ImeilogsStatus.txt a+]
+    puts $id "$Barcode,$RadName,$AttName,$DevId,$Sw,$Imei,$date,$tim,$HostDescription,$Spare1,$Spare2,$Spare3,$Spare4,$Spare5,$Spare6  res:<$res>"
+  close $id  
+  
+  if ![string match *passed* $res] {
+    if [catch {open //prod-svm1/tds/temp/DbLocked/Imei_[regsub \/ $hostDescription .]_$gaSet(pair).txt a+} id] {
+      puts "[MyTime] $id"
+    } else {
+      puts $id "$Barcode,$RadName,$AttName,$DevId,$Sw,$Imei,$date,$tim,$HostDescription,$Spare1,$Spare2,$Spare3,$Spare4,$Spare5,$Spare6  res:<$res>"   
+      close $id
+    }
+  }
+  
+  return 0
+}
+# ***************************************************************************
+# ImeiSQliteClose
+# ***************************************************************************
+proc ImeiSQliteClose {} {
+  global gaSet
+  puts "[MyTime] ImeiSQliteClose" ; update
+  catch {gaSet(dataBaseImei) close}
+}
