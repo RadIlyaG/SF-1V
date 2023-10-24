@@ -242,17 +242,17 @@ proc ImeiSQliteAddLine {} {
     return -1
   }
   
-  switch -exact -- $RadName {
-    SF-1V/E2/48V/4U1S/POE/2RS/L4/G/L4 {set AttName SecFlow-1v;                         set DevId BI001996}
-    SF-1V/E2/12v/4U1S/2RSM/L4/G/GO    {set AttName SF-1V/E2/12v/4U1S/2RSM/L4/G/GO;     set DevId BI006387}
-    SF-1P/E1/DC/4U2S/2RSM/L4/G/LRA/2R {set AttName SF-1P/E1/DC/4U2S/2RSM/L4/G/LRA/2R ; set DevId BI006054}
-    ETX-203AX-T/LTE/GE30/2SFP/3UTP/L4 {set AttName ETX-203AX-T;                        set DevId BI003495}
-    default                           {set AttName $RadName;                           set DevId -}
-  }
-  puts "ImeiSQliteAddLine AttName:<$AttName> DevId:<$DevId>"
-  if {$DevId=="-"} {
-    #return 0
-  }
+  # switch -exact -- $RadName {
+    # SF-1V/E2/48V/4U1S/POE/2RS/L4/G/L4 {set AttName SecFlow-1v;                         set DevId BI001996}
+    # SF-1V/E2/12v/4U1S/2RSM/L4/G/GO    {set AttName SF-1V/E2/12v/4U1S/2RSM/L4/G/GO;     set DevId BI006387}
+    # SF-1P/E1/DC/4U2S/2RSM/L4/G/LRA/2R {set AttName SF-1P/E1/DC/4U2S/2RSM/L4/G/LRA/2R ; set DevId BI006054}
+    # ETX-203AX-T/LTE/GE30/2SFP/3UTP/L4 {set AttName ETX-203AX-T;                        set DevId BI003495}
+    # default                           {set AttName $RadName;                           set DevId -}
+  # }
+  # puts "ImeiSQliteAddLine AttName:<$AttName> DevId:<$DevId>"
+  # if {$DevId=="-"} {
+    # #return 0
+  # }
   
   set Sw $gaSet(SWver)
   puts "ImeiSQliteAddLine Sw:<$Sw>"
@@ -294,7 +294,7 @@ proc ImeiSQliteAddLine {} {
     if {$ret!=0} {return $ret}
     
     for {set tr 1} {$tr <= 6} {incr tr} {
-      if [catch {gaSet(dataBaseImei) eval {INSERT INTO tbl VALUES($Barcode,$RadName,$AttName,$DevId,$Sw,$Imei,$date,$tim,$HostDescription,$Spare1,$Spare2,$Spare3,$Spare4,$Spare5,$Spare6)}} res] {
+      if [catch {gaSet(dataBaseImei) eval {INSERT INTO tbl VALUES($Barcode,$RadName,$Imei,$Sw,$date,$tim,$HostDescription,$Spare1,$Spare2,$Spare3,$Spare4,$Spare5,$Spare6)}} res] {
         set res "Try${tr}_fail.$res"
         puts "[MyTime] ImeiDataBase is not updated. Try:<$tr>. Res:<$res>" ; update
         after [expr {int(rand()*3000+60)}] 
@@ -307,14 +307,14 @@ proc ImeiSQliteAddLine {} {
     ImeiSQliteClose
 
   set id [open c:/logs/ImeilogsStatus.txt a+]
-    puts $id "$Barcode,$RadName,$AttName,$DevId,$Sw,$Imei,$date,$tim,$HostDescription,$Spare1,$Spare2,$Spare3,$Spare4,$Spare5,$Spare6  res:<$res>"
+    puts $id "$Barcode,$RadName,$Imei,$Sw,$date,$tim,$HostDescription,$Spare1,$Spare2,$Spare3,$Spare4,$Spare5,$Spare6  res:<$res>"
   close $id  
   
   if ![string match *passed* $res] {
     if [catch {open //prod-svm1/tds/temp/DbLocked/Imei_[regsub \/ $hostDescription .]_$gaSet(pair).txt a+} id] {
       puts "[MyTime] $id"
     } else {
-      puts $id "$Barcode,$RadName,$AttName,$DevId,$Sw,$Imei,$date,$tim,$HostDescription,$Spare1,$Spare2,$Spare3,$Spare4,$Spare5,$Spare6  res:<$res>"   
+      puts $id "$Barcode,$RadName,$Imei,$Sw,$date,$tim,$HostDescription,$Spare1,$Spare2,$Spare3,$Spare4,$Spare5,$Spare6  res:<$res>"   
       close $id
     }
     set gaSet(fail) "Update IMEI DB fail"
