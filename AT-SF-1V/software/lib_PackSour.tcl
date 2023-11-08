@@ -125,6 +125,8 @@ package require sqlite3
 package require ftp
 package require http
 package require tls
+package require base64
+::http::register https 8445 ::tls::socket
   
 
 source Gui_SF1V.tcl
