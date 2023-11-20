@@ -271,3 +271,55 @@ proc ReadBarcode {} {
   return $ret
 }
 
+ ***************************************************************************
+# UnregIdBarcode
+# UnregIdBarcode $gaSet(1.barcode1)
+# UnregIdBarcode EA100463652
+# ***************************************************************************
+proc UnregIdBarcode {barcode {mac {}}} {
+  global gaSet
+  Status "Unreg ID Barcode $barcode"
+  set res [UnregIdMac $barcode $mac]
+    
+  puts "\nUnreg ID Barcode $barcode res:<$res>\n"
+  if {$res=="OK" || [string match "*No records to Delete by ID-Number*" $res]} {
+    set ret 0
+  } else {
+    set ret $res
+  }
+  AddToPairLog $gaSet(pair) "Unreg ID Barcode $barcode mac:<$mac> res:<$res> ret:<$ret>"
+  return $ret
+}
+
+# ***************************************************************************
+# UnregIdMac
+# ***************************************************************************
+proc UnregIdMac {barcode {mac {}}} {
+  set ret 0
+  set res ""
+  set url "http://ws-proxy01.rad.com:10211/ATE_WS/ws/rest/"
+  #set url "https://ws-proxy01.rad.com:8445/ATE_WS/ws/rest/"
+  set param "DisconnectBarcode\?mac=[set mac]\&idNumber=[set barcode]"
+  append url $param
+  puts "url:<$url>"
+  if [catch {set tok [::http::geturl $url -headers [list Authorization "Basic [base64::encode webservices:radexternal]"]]} res] {
+    return $res
+  } 
+  update
+  set st [::http::status $tok]
+  set nc [::http::ncode $tok]
+  if {$st=="ok" && $nc=="200"} {
+    #puts "Get $command from $barc done successfully"
+  } else {
+    set res "http::status: <$st> http::ncode: <$nc>"
+    set ret -1
+  }
+  upvar #0 $tok state
+  #parray state
+  #puts "body:<$state(body)>"
+  set ret $state(body)
+  ::http::cleanup $tok
+  
+  return $ret
+}
+
