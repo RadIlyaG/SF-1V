@@ -896,15 +896,17 @@ proc RetriveDutFam {{dutInitName ""}} {
     #set gaSet(dutFam.rg) 0
   }
   
-  set qty [regexp -all {\.(LR[1-6])\.} $dutInitName ma lora]
+  set qty [regexp -all {\.(LR[A1-6]?)\.} $dutInitName ma lora]
+  set qty [regexp -all {\.(LR[A-Z1-6]+?)\.} $dutInitName ma lora]
   if $qty {
     set gaSet(dutFam.lora) $lora
     switch -exact -- $lora {
-      LR1 {set gaSet(dutFam.lora.region) eu433; set gaSet(dutFam.lora.band) "EU 433"}
-      LR2 {set gaSet(dutFam.lora.region) eu868; set gaSet(dutFam.lora.band) "EU 863-870"}
-      LR3 {set gaSet(dutFam.lora.region) au915; set gaSet(dutFam.lora.band) "AU 915-928 Sub-band 2"}
-      LR4 {set gaSet(dutFam.lora.region) us902; set gaSet(dutFam.lora.band) "US 902-928 Sub-band 2"}
-      LR6 {set gaSet(dutFam.lora.region) as923; set gaSet(dutFam.lora.band) "AS 923-925"}
+      LR1  {set gaSet(dutFam.lora.region) eu433; set gaSet(dutFam.lora.band) "EU 433"}
+      LR2  {set gaSet(dutFam.lora.region) eu868; set gaSet(dutFam.lora.band) "EU 863-870"}
+      LR3  {set gaSet(dutFam.lora.region) au915; set gaSet(dutFam.lora.band) "AU 915-928 Sub-band 2"}
+      LR4  {set gaSet(dutFam.lora.region) us902; set gaSet(dutFam.lora.band) "US 902-928 Sub-band 2"}
+      LR6  {set gaSet(dutFam.lora.region) as923; set gaSet(dutFam.lora.band) "AS 923-925"}
+      LRAC {set gaSet(dutFam.lora.region) us902; set gaSet(dutFam.lora.band) "US 902-928 Sub-band 2"}
     }
   } else {
     set gaSet(dutFam.lora) 0

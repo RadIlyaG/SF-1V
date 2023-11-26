@@ -3469,7 +3469,9 @@ proc LoraPerf {} {
   set ret [LoraStartStop LoraAndGps]
   if {$ret!=0} {return $ret}
   
-  if {$gaSet(dutFam.lora)=="LR2" || $gaSet(dutFam.lora)=="LR3" || $gaSet(dutFam.lora)=="LR4" || $gaSet(dutFam.lora)=="LR6"} {
+  if {$gaSet(dutFam.lora)=="LR2" || $gaSet(dutFam.lora)=="LR3" || \
+      $gaSet(dutFam.lora)=="LR4" || $gaSet(dutFam.lora)=="LR6" || \
+      $gaSet(dutFam.lora)=="LRAC"} {
     Send $com "exit\r\r" "stam" 3 
     Send $com "\33" "stam" 1  
     Send $com "\r\r" "stam" 2  
@@ -3840,7 +3842,7 @@ proc LoraStartStop {mode} {
       set gaSet(fail) "Not all fields of LoRa web were found" 
       switch -exact -- $gaSet(dutFam.lora) {
         LR1 {set mote "F4330811"}
-        LR2 - LR3 - LR4 - LR6  {set mote "2601170E"}
+        LR2 - LR3 - LR4 - LR6 - LRAC {set mote "2601170E"}
       }
       set ret1 [LoraReadLog $mote]
 #       #set res [regexp {Received pkt from mote: ([A-Z\d]+)} $body ma val]

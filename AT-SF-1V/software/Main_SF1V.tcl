@@ -33,9 +33,9 @@ proc BuildTests {} {
   
   if {[string index $gaSet(dutFam.cell) 0]=="1"} {
     if {[string index $gaSet(dutFam.cell) 2]=="4"} {
-      lappend lTestNames CellularModemL4
+      lappend lTestNames CellularModemL4_slot1 CellularModemL4_slot2
     } else {
-      lappend lTestNames CellularModem
+      lappend lTestNames CellularModem_slot1 CellularModem_slot2
     } 
   } elseif {[string index $gaSet(dutFam.cell) 0]=="2"} {
     if {[string index $gaSet(dutFam.cell) 2]=="4"} {
@@ -472,7 +472,24 @@ proc CellularModem {run} {
   if {$ret!=0} {return -1}
   return $ret
 } 
-
+# ***************************************************************************
+# CellularModem_slot1
+# ***************************************************************************
+proc CellularModem_slot1 {run} {
+  set ret [CellularFirmware]   
+  if {$ret!=0} {return -1}
+  set ret [CellularModemPerf 1 notL4]   
+  if {$ret!=0} {return -1}
+  return $ret
+} 
+# ***************************************************************************
+# CellularModem_slot2
+# ***************************************************************************
+proc CellularModem_slot2 {run} {
+  set ret [CellularModemPerf 2 notL4]   
+  if {$ret!=0} {return -1}  
+  return $ret
+} 
 # ***************************************************************************
 # CellularDualModem
 # ***************************************************************************
@@ -493,6 +510,24 @@ proc CellularModemL4 {run} {
   if {$ret!=0} {return -1}  
   set ret [CellularFirmware]   
   if {$ret!=0} {return -1}
+  return $ret
+}
+# ***************************************************************************
+# CellularModemL4_slot1
+# ***************************************************************************
+proc CellularModemL4_slot1 {run} {
+  set ret [CellularFirmware]   
+  if {$ret!=0} {return -1}
+  set ret [CellularModemPerf 1 L4]   
+  if {$ret!=0} {return -1}
+  return $ret
+}
+# ***************************************************************************
+# CellularModemL4_slot2
+# ***************************************************************************
+proc CellularModemL4_slot2 {run} {
+  set ret [CellularModemPerf 2 L4]   
+  if {$ret!=0} {return -1}  
   return $ret
 }
 # ***************************************************************************
