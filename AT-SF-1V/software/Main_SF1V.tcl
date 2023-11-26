@@ -71,7 +71,10 @@ proc BuildTests {} {
   }
   
   
-  lappend lTestNames AlarmRunLeds CloseUboot_FrontLeds Factory_Settings Mac_BarCode
+  lappend lTestNames AlarmRunLeds CloseUboot_FrontLeds Factory_Settings
+  if !$gaSet(demo) {
+    lappend lTestNames Mac_BarCode
+  }
   
   eval lappend lTestsAllTests $lTestNames
   

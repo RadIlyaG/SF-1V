@@ -4,13 +4,32 @@
 proc GUI {} {
   global gaSet gaGui glTests  
   
-  wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+  #wm title . "$gaSet(pair) : $gaSet(DutFullName)"
   if {![info exists gaSet(eraseTitle)]} {
     set gaSet(eraseTitle) 1
   }
   set gaSet(eraseTitleGui) $gaSet(eraseTitle)
   if {$gaSet(eraseTitle)==1} {
-    wm title . "$gaSet(pair) : "
+    if $gaSet(demo) {
+      wm title . "DEMO!!! $gaSet(pair) : $gaSet(DutFullName)"
+    } else {
+      wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+    }
+  }
+  if $gaSet(demo) {
+    wm deiconify .
+    wm geometry . $gaGui(xy)
+   update
+    RLSound::Play information
+    set txt "You are working with ATE's DEMO version\n
+Please confirm you know products should not be released to the customer with this version"
+    set res [DialogBox -icon images/info -type "OK Abort" -text $txt -default 1 -aspect 2000 -title "DEMO version"]
+    if {$res=="Abort"} {
+      exit
+    } 
+    wm title . "DEMO!!! $gaSet(pair) : $gaSet(DutFullName)"
+  } else {
+    wm title . "$gaSet(pair) : $gaSet(DutFullName)"
   }
   
   wm protocol . WM_DELETE_WINDOW {Quit}
@@ -506,7 +525,12 @@ proc ButOkInventory {} {
         set gaSet(DutInitName) $fil1.tcl
         set gaSet(DutFullName) $fil1
         #set gaSet(entDUT) $fil1
-        wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+        #wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+        if $gaSet(demo) {
+          wm title . "DEMO!!! $gaSet(pair) : $gaSet(DutFullName)"
+        } else {
+          wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+        }
         #SaveUutInit $fil
         update
       }
@@ -816,7 +840,12 @@ proc ButRun {} {
   $gaGui(tbpaus) configure -relief sunken -state disabled
   
   if {$gaSet(eraseTitle)==1} {
-    wm title . "$gaSet(pair) : "
+    #wm title . "$gaSet(pair) : "
+    if $gaSet(demo) {
+      wm title . "DEMO!!! $gaSet(pair) : "
+    } else {
+      wm title . "$gaSet(pair) : "
+    }
   }
   
   update

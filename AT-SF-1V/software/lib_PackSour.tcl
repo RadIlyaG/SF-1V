@@ -180,6 +180,10 @@ if ![info exists gaSet(loraDashBver)] {
 
 set gaSet(WifiNet) 50.50
 
+if ![info exists gaSet(demo)] {
+  set gaSet(demo) 0
+}
+
 GUI
 BuildTests
 update

@@ -602,7 +602,12 @@ proc GetDbrName {} {
   if [file exists MarkNam_$barcode.txt] {
     file delete -force MarkNam_$barcode.txt
   }
-  wm title . "$gaSet(pair) : "
+  #wm title . "$gaSet(pair) : "
+  if $gaSet(demo) {
+    wm title . "DEMO!!! $gaSet(pair) : $gaSet(DutFullName)"
+  } else {
+    wm title . "$gaSet(pair) : "
+  }
   after 500
   
   if {![file exist $gaSet(javaLocation)]} {
@@ -656,7 +661,12 @@ proc GetDbrName {} {
       set gaSet($v) 0
     } 
   } 
-  wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+  #wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+  if $gaSet(demo) {
+    wm title . "DEMO!!! $gaSet(pair) : $gaSet(DutFullName)"
+  } else {
+    wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+  }
   pack forget $gaGui(frFailStatus)
   #Status ""
   update
@@ -704,7 +714,12 @@ proc GetInitFile {} {
       set gaSet(DutFullName) $a
     }
     
-    wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+    #wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+    if $gaSet(demo) {
+      wm title . "DEMO!!! $gaSet(pair) : $gaSet(DutFullName)"
+    } else {
+      wm title . "$gaSet(pair) : $gaSet(DutFullName)"
+    }
     #UpdateAppsHelpText
     pack forget $gaGui(frFailStatus)
     Status ""
