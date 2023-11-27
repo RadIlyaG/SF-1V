@@ -3409,10 +3409,6 @@ proc LoraPerf {} {
     }  
   }
   
-#   set gaSet(fail) "Configuration LoRa gnss fail" 
-#   set ret [Send $com "gnss update admin-status enable\r" "$gaSet(appPrompt)"]
-#   if {$ret!=0} {return $ret}
-  
   set gaSet(fail) "Configuration LoRa router nat fail" 
   set ret [Send $com "router nat static create protocol tcp  original-port 4443  modified-ip 10.0.3.70  modified-port 8443\r" "$gaSet(appPrompt)"]
   if {$ret!=0} {return $ret}
@@ -3448,16 +3444,7 @@ proc LoraPerf {} {
     set ret [LoraChangeRegion eu868]
   }
   if {$ret!=0} {return $ret}
-  
-#   Send $com "exit\r\r" "stam" 3 
-#   Send $com "\33" "stam" 1  
-#   Send $com "\r\r" "stam" 2   
-#   if {$ret!=0} {return $ret}
-#   set ret [LoraGatewayId]
-#   if {$ret!=0} {return $ret}
-#   Send $com "exit\r\r" "stam" 1 
-#   Send $com "exit\r\r" "stam" 1 
-  
+    
   Send $com "exit\r\r" "stam" 3 
   Send $com "\33" "stam" 1  
   Send $com "\r\r" "stam" 2  
@@ -3564,9 +3551,6 @@ proc LoraStartStop {mode} {
   for {set i 1} {$i<=5} {incr i} {
     puts "[MyTime] Try to login $i"
     puts "\nlogin without User:Password"
-    #set cmd "exec $gaSet(curl) -k -c cook$gaSet(pair) https://10.10.10.10[set gaSet(pair)]:4443/login"
-    #puts "cmd:<$cmd>"
-    #catch {eval $cmd} res 
     catch {exec $gaSet(curl) -k  -c cook$gaSet(pair) "https://10.10.10.10[set gaSet(pair)]:4443/login"} resBody
     set csrf - ;  regexp {csrf_token" value="([a-zA-Z0-9\.\-\_]+)"} $resBody ma csrf
     if {$csrf=="-"} {
@@ -3576,12 +3560,7 @@ proc LoraStartStop {mode} {
     puts csrf1<$csrf>
     
     puts "\nlogin with User:Password"
-#     set cmd [list $gaSet(curl) -i -L -k -c cook$gaSet(pair) -b cook$gaSet(pair) https://10.10.10.10[set gaSet(pair)]:4443/login \
-#         --data-raw \"csrf_token=[set csrf]&username=admin&password=admin\"]
-#     set cmd "exec $gaSet(curl) -i -L -k -c cook$gaSet(pair) -b cook$gaSet(pair) https://10.10.10.10[set gaSet(pair)]:4443/login \
-#         --data-raw \"csrf_token=[set csrf]&username=admin&password=admin\""
-#     puts "cmd:<$cmd>"
-#     catch {eval $cmd} res
+
     catch {exec $gaSet(curl)  -i -L -k -c cook$gaSet(pair) -b cook$gaSet(pair) "https://10.10.10.10[set gaSet(pair)]:4443/login" \
         --data-raw "csrf_token=[set csrf]&username=admin&password=admin"} resBody
     set csrf - ; regexp {csrf_token" value="([a-zA-Z0-9\.\-\_]+)"} $resBody ma csrf ; #regexp {X-Csrftoken: ([a-zA-Z0-9\.\-\_]+)\s} $resBody ma csrf
@@ -3603,63 +3582,9 @@ proc LoraStartStop {mode} {
       }
       set ret [Wait "Wait for Browser" 10]
     }  
-#     set login [::http::formatQuery username admin password admin]
-#     catch {::http::geturl https://10.10.10.10[set gaSet(pair)]:4443/login -query $login -timeout $timeout} tok
-#     upvar #0 $tok state
-#     parray state
-#     #ReadCookies
-#     set cookies [list]
-#     if ![info exists state(meta)] {
-#       return -1  
-#     }
-#     foreach {name value} $state(meta) {
-#       if { $name eq "Set-Cookie" } {
-#         lappend cookies [lindex [split $value {;}] 0]
-#       }
-#     }
-#     set body [StripHtmlTags $state(body)]
-#     http::cleanup $tok
-#     puts "login.<$body>"; update 
-#     #puts "cookies:<$cookies>"
-  
-#     if {[string match {*502 Bad Gateway*} $body]} {
-#       set ret [Wait "Wait for Browser" 10]
-#     } else {
-#       break
-#     }
   }
   
   Status "Read Dashboard"
-#   catch {::http::geturl https://10.10.10.10[set gaSet(pair)]:4443/dashboard -headers [list Cookie [join $cookies {;}]]} tok
-#   upvar #0 $tok state
-# #   ReadCookies
-#   #parray state
-#   set cookies [list]
-#   if ![info exists state(meta)] {
-#     return -1  
-#   }
-#   foreach {name value} $state(meta) {
-#     if { $name eq "Set-Cookie" } {
-#       lappend cookies [lindex [split $value {;}] 0]
-#     }
-#   }
-#   set body [StripHtmlTags $state(body)] 
-#   http::cleanup $tok
-#   #puts "cookies:<$cookies>"
-#   set body [StripHtmlTags $res] 
-#   if [regexp {_Dashboard_(.+)_Runtime Logs_} $body ma val] {
-#     set body $val
-#   }
-#   puts "dashboard.<$body>"; update 
-  #puts [set body [StripHtmlTags $body]]
-  ## __Version: _1.0.4_____Band: _EU 863-870_____
-#   Dashboard_
-#                         __Version: _1.0.4_____Band: _EU 863-870_____Status: _Running___
-#                     _
-#                     _
-#                     _Runtime Logs_
-# _Dashboard_
-#                         __Version: _1.0.4_____Band: _EU 863-870_____Status: _Stopped___
 
   set res [regexp {Dashboard[\_\s]+Version:\s+_([\d\.]+)_+Band:\s+_([A-Za-z\s\d\-]+)_+Status:\s+_([a-zA-Z]+)_} $body ma ver band status]
   if {$res==0} {
@@ -3686,41 +3611,7 @@ proc LoraStartStop {mode} {
     set body [StripHtmlTags $resBody] 
     set res [regexp {Dashboard[\_\s]+Version:\s+_([\d\.]+)_+Band:\s+_([A-Za-z\s\d\-]+)_+Status:\s+_([a-zA-Z]+)_} $body ma ver band status]
     puts "res:<$res> ver:<$ver> band:<$band> status:<$status>" 
-#     catch {::http::geturl https://10.10.10.10[set gaSet(pair)]:4443/stop_gateway -headers [list Cookie [join $cookies {;}]]} tok
-#     upvar #0 $tok state
-#     #ReadCookies
-#     #parray state
-#     set cookies [list]
-#     foreach {name value} $state(meta) {
-#       if { $name eq "Set-Cookie" } {
-#         lappend cookies [lindex [split $value {;}] 0]
-#       }
-#     }
-#     set body [StripHtmlTags $state(body)] 
-#     http::cleanup $tok
-#     puts "stop_gateway.<$body>"; update 
-#     #puts "cookies:<$cookies>"
-#     #puts [set body [StripHtmlTags $body]]
-#     
-#     Status "Read Dashboard"
-#     catch {::http::geturl https://10.10.10.10[set gaSet(pair)]:4443/dashboard -headers [list Cookie [join $cookies {;}]]} tok
-#     upvar #0 $tok state
-#     #ReadCookies
-#     #parray state
-#     set cookies [list]
-#     foreach {name value} $state(meta) {
-#       if { $name eq "Set-Cookie" } {
-#         lappend cookies [lindex [split $value {;}] 0]
-#       }
-#     }
-#     set body [StripHtmlTags $state(body)] 
-#     http::cleanup $tok
-#     if [regexp {_Dashboard_(.+)_Runtime Logs_} $body ma val] {
-#       set body $val
-#     }
-    #puts "dashboard.<$body>"; update 
-    #puts "cookies:<$cookies>"
-#     puts [set body [StripHtmlTags $body]]
+
     
     after 2000
   }
@@ -3738,48 +3629,7 @@ proc LoraStartStop {mode} {
   set res [regexp {Dashboard[\_\s]+Version:\s+_([\d\.]+)_+Band:\s+_([A-Za-z\s\d\-]+)_+Status:\s+_([a-zA-Z]+)_} $body ma ver band status]
   puts "res:<$res> ver:<$ver> band:<$band> status:<$status>" 
 
-#   catch {::http::geturl https://10.10.10.10[set gaSet(pair)]:4443/start_gateway -headers [list Cookie [join $cookies {;}]]} tok
-#   upvar #0 $tok state
-#   #ReadCookies
-#   #parray state
-#   set cookies [list]
-#   foreach {name value} $state(meta) {
-#     if { $name eq "Set-Cookie" } {
-#       lappend cookies [lindex [split $value {;}] 0]
-#     }
-#   }
-#   set body [StripHtmlTags $state(body)] 
-#   http::cleanup $tok
-#   puts "start_gateway.<$body>"; update 
-#   #puts "cookies:<$cookies>"
-#   #puts [set body [StripHtmlTags $body]]
-#   
-#   Status "Read Dashboard"
-#   catch {::http::geturl https://10.10.10.10[set gaSet(pair)]:4443/dashboard -headers [list Cookie [join $cookies {;}]]} tok
-#   upvar #0 $tok state
-#   #ReadCookies
-#   #parray state
-#   set cookies [list]
-#   foreach {name value} $state(meta) {
-#     if { $name eq "Set-Cookie" } {
-#       lappend cookies [lindex [split $value {;}] 0]
-#     }
-#   }
-#   set body [StripHtmlTags $state(body)] 
-#   
-#   http::cleanup $tok
-#   if [regexp {_Dashboard_(.+)_Runtime Logs_} $body ma val] {
-#     set body $val
-#   }
-#   puts "dashboard.<$body>"; update 
-#   #puts "cookies:<$cookies>"
-# #   puts [set body [StripHtmlTags $body]]
-#   set res [regexp {Dashboard[\_\s]+Version:\s+_([\d\.]+)_+Band:\s+_([A-Za-z\s\d\-]+)_+Status:\s+_([a-zA-Z]+)_} $body ma ver band status]
-#   if {$res==0} {
-#     set gaSet(fail) "Read Dashboard fail"
-#     return -1
-#   }
-#   puts "ver:<$ver> band:<$band> status:<$status>" 
+
  
   Status "Read Logs"
   set ret 0
@@ -3789,36 +3639,12 @@ proc LoraStartStop {mode} {
     set ret1 [set ret2 [set ret3 [set ret4 [set ret5 -1]]]]
     set ret [Wait "Wait for reading logs ($i : $max)" 15 ]
     if {$ret!=0} {return $ret}
-    
-#     catch {::http::geturl https://10.10.10.10[set gaSet(pair)]:4443/runtime_logs -headers [list Cookie [join $cookies {;}]]} tok
-#     upvar #0 $tok state
-#     #ReadCookies
-#     #parray state
-#     set cookies [list]
-#     foreach {name value} $state(meta) {
-#       if { $name eq "Set-Cookie" } {
-#         lappend cookies [lindex [split $value {;}] 0]
-#       }
-#     }
-#     set body [StripHtmlTags $state(body)] 
-#     http::cleanup $tok
 
-#     catch {exec $gaSet(curl)  -i -L -k -c cook$gaSet(pair) -b cook$gaSet(pair) "https://10.10.10.10[set gaSet(pair)]:4443/runtime_logs?csrf_token=[set csrf]" \
-      --data-raw "csrf_token=[set csrf]"} resBody
     catch {exec $gaSet(curl)  -i -L -k -c cook$gaSet(pair) -b cook$gaSet(pair) "https://10.10.10.10[set gaSet(pair)]:4443/runtime_logs"} resBody  
-    #set csrf - ; regexp {csrf_token" value="([a-zA-Z0-9\.\-\_]+)"} $resBody ma csrf ; #regexp {X-Csrftoken: ([a-zA-Z0-9\.\-\_]+)\s} $resBody ma csrf
-    #puts $res
-    #if {$csrf=="-"} {
-    #  regexp {X-Csrftoken: ([a-zA-Z0-9\.\-\_]+)\s} $resBody ma csrf
-    #}
-    #puts csrfRuntime_logs${i}<$csrf>
     
     set body [StripHtmlTags $resBody] 
     puts "[MyTime] runtime_logs.$i.<$body>"; update
     
-    
-    #puts "cookies:<$cookies>"
-    #puts [set body [StripHtmlTags $body]]
     set ::logs $body
     
     puts "mode:$mode"
@@ -3845,42 +3671,10 @@ proc LoraStartStop {mode} {
         LR2 - LR3 - LR4 - LR6 - LRAC {set mote "2601170E"}
       }
       set ret1 [LoraReadLog $mote]
-#       #set res [regexp {Received pkt from mote: ([A-Z\d]+)} $body ma val]
-#       ## 04/11/2020 08:23:45
-#       set res [regexp {received packet with valid CRC from mote: ([A-Z\d]+)} $body ma val]
-#       if {$res==1} {
-#         puts "[MyTime] mote:<$mote> val:<$val>"
-#         if {$val!=$mote} {
-#           set gaSet(fail) "The Mote is \'$mote\'. Should be \'$val\'"
-#           set ret -1
-#           break 
-#         } else {
-#           set ret1 0        
-#         }
-#       }
-      
-      ##JSON up: {"rxpk":[{"tmst":15889012,"chan":7,"rfch":0,"freq":867.900000,"stat":1,"modu":"LORA","datr":"SF7BW125","codr":"4/5","lsnr":4.2,"rssi":-120,"size":15,"data":"QA4XASaAhwABxVfgeAF4"}]}
-      
+     
       set ret2 0
-      ## 02/11/2020 11:44:38
-#       set res [regexp {JSON up: \{\"rxpk\":\[\{\"tmst\":(\d+).+?\"freq\":([\d\.]+).+?\"rssi\":([\-\d]+).+?\"data\":\"([\d\w\/\+\=]+)\"} $body ma tmst freq rssi data]
-#       if {$res==1} {
-#         foreach val {tmst freq rssi data} {
-#           set valVal [set $val]
-#           puts "$val:<$valVal>"          
-#         }
-#         set ret2 0
-#       }
-      
+       
       set ret3 0 ; #02/11/2020 11:44:59
-#       set res [regexp {GPS coordinates: latitude ([\d\.]+), longitude ([\d\.]+), altitude (\d+) m} $body m lat long alti]
-#       if {$res==1} {
-#         foreach val {lat long alti} {
-#           set valVal [set $val]
-#           puts "$val:<$valVal>"
-#         }
-#         set ret3 0
-#       }
       
       puts "[MyTime] $ret1 $ret2 $ret3"
       if {$ret1==0 && $ret2==0 && $ret3==0} {
@@ -3938,8 +3732,6 @@ proc LoraStartStop {mode} {
   
   if {$ret1==0 && $ret2==0 && $ret3==0} {
     AddToPairLog $gaSet(pair) "Received packet with valid CRC from mote $mote"
-    #AddToPairLog $gaSet(pair) "JSON up: rxpk: tmst:$tmst, freq:$freq, rssi:$rssi, data:$data"
-    #AddToPairLog $gaSet(pair) "GPS coordinates: latitude: $lat, longitude:$long, altitude:$alti"
   }
   if {$ret4==0} {
     AddToPairLog $gaSet(pair) "The Band: \'$band\'. Center Frequency: $fr1, $fr2"
@@ -3962,22 +3754,6 @@ proc LoraStartStop {mode} {
   puts "res:<$res> ver:<$ver> band:<$band> status:<$status>" 
 
 
-#   catch {::http::geturl https://10.10.10.10[set gaSet(pair)]:4443/stop_gateway -timeout $timeout -headers [list Cookie [join $cookies {;}]]} tok
-#   upvar #0 $tok state
-#   #ReadCookies
-#   #parray state
-#   set cookies [list]
-#   foreach {name value} $state(meta) {
-#     if { $name eq "Set-Cookie" } {
-#       lappend cookies [lindex [split $value {;}] 0]
-#     }
-#   }
-#   set body [StripHtmlTags $state(body)] 
-#   http::cleanup $tok
-#   puts "stop_gateway.<$body>"; update 
-#   #puts "cookies:<$cookies>"
-#   #puts [set body [StripHtmlTags $body]]   
-  
   Status "Logout"
   catch {exec $gaSet(curl) -k  -c cook$gaSet(pair) "https://10.10.10.10[set gaSet(pair)]:4443/logout"} resBody
   set csrf - ; regexp {csrf_token" value="([a-zA-Z0-9\.\-\_]+)"} $resBody ma csrf ; #regexp {X-Csrftoken: ([a-zA-Z0-9\.\-\_]+)\s} $resBody ma csrf
@@ -3986,25 +3762,9 @@ proc LoraStartStop {mode} {
   }
   #puts $resBody
   puts csrfLogout<$csrf>
-
-#   catch {::http::geturl https://10.10.10.10[set gaSet(pair)]:4443/logout -timeout $timeout -headers [list Cookie [join $cookies {;}]]} tok
-#   upvar #0 $tok state
-#   #parray state
-#   #ReadCookies
-#   set cookies [list]
-#   foreach {name value} $state(meta) {
-#     if { $name eq "Set-Cookie" } {
-#       lappend cookies [lindex [split $value {;}] 0]
-#     }
-#   }
-#   set body [StripHtmlTags $state(body)]
-#   http::cleanup $tok
-#   puts "logout.<$body>"; update 
-    
   
   return $ret
 }
-
 
 # ***************************************************************************
 # LoraChangeRegion
@@ -4035,7 +3795,7 @@ proc LoraChangeRegion {reg} {
     if {$gaSet(act)==0} {return -2}
     set ret [Send $com "cd\r\r" "#"]
     set ret [Send $com "pwd\r" "#"]
-    
+                                                                    
     set LoRaWAN "/mnt/extra/lxd/storage-pools/default/containers/lorawan/rootfs/root/LoRaWAN/LoRaWAN_webui"
     set ret [Send $com "cd $LoRaWAN\r" "#"]
     if {[string match {*can't cd*} $buffer]} {
