@@ -826,7 +826,7 @@ proc RetriveDutFam {{dutInitName ""}} {
     set dutInitName $gaSet(DutInitName)
   }
   puts "[MyTime] RetriveDutFam $dutInitName"
-  set fieldsL [split $dutInitName .]
+  set fieldsL [lrange [split $dutInitName .] 0 end-1] ; # remove tcl
   
   #set gaSet(dutFam.sf)  "SF-1V"
   regexp {([A-Z0-9\-\_]+)\.E} $dutInitName ma gaSet(dutFam.sf)
@@ -834,12 +834,20 @@ proc RetriveDutFam {{dutInitName ""}} {
     SF-1V - SF-1V_CIE {set gaSet(appPrompt) "SecFlow-1v#"}
     VB-101V {set gaSet(appPrompt) "VB101V#"}
   }
+  set idx [lsearch $fieldsL $gaSet(dutFam.sf)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   regexp {V\.(E\d)\.} $dutInitName ma gaSet(dutFam.box)
+  set idx [lsearch $fieldsL $gaSet(dutFam.box)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   regexp {E\d\.([A-Z0-9]+)\.} $dutInitName ma gaSet(dutFam.ps)
+  set idx [lsearch $fieldsL $gaSet(dutFam.ps)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   set gaSet(dutFam.ethPort)  "4U1S"
+  set idx [lsearch $fieldsL $gaSet(dutFam.ethPort)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   if {[string match *\.2RS\.* $dutInitName]} {
     set gaSet(dutFam.serPort) 2RS
@@ -848,12 +856,15 @@ proc RetriveDutFam {{dutInitName ""}} {
   } else {
     set gaSet(dutFam.serPort) 0
   }
+  set idx [lsearch $fieldsL $gaSet(dutFam.serPort)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   if {[string match *\.CSP\.* $dutInitName]} {
     set gaSet(dutFam.serPortCsp) CSP
   } else {
     set gaSet(dutFam.serPortCsp) 0
   }
-  
+  set idx [lsearch $fieldsL $gaSet(dutFam.serPortCsp)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   if {[string match *\.2PA\.* $dutInitName]} {
     set gaSet(dutFam.poe) 2PA
@@ -862,6 +873,8 @@ proc RetriveDutFam {{dutInitName ""}} {
   } else {
     set gaSet(dutFam.poe) 0
   }
+  set idx [lsearch $fieldsL $gaSet(dutFam.poe)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   set gaSet(dutFam.cell) 0
   foreach cell [list HSP L1 L2 L3 L4] {
@@ -871,18 +884,27 @@ proc RetriveDutFam {{dutInitName ""}} {
       break
     }  
   }
+  ## twice, since 2 modems can be installed
+  set idx [lsearch $fieldsL [string range $gaSet(dutFam.cell) 1 end]]
+  set fieldsL [lreplace $fieldsL $idx $idx]
+  set idx [lsearch $fieldsL [string range $gaSet(dutFam.cell) 1 end]]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   if {[string match *\.G\.* $dutInitName]} {
     set gaSet(dutFam.gps) G
   } else {
     set gaSet(dutFam.gps) 0
   }
+  set idx [lsearch $fieldsL $gaSet(dutFam.gps)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   if {[string match *\.WF\.* $dutInitName]} {
     set gaSet(dutFam.wifi) WF
   } else {
     set gaSet(dutFam.wifi) 0
   }
+  set idx [lsearch $fieldsL $gaSet(dutFam.wifi)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   if {[string match *\.GO\.* $dutInitName] || [string match *GO\.tcl $dutInitName]} {
     set gaSet(dutFam.dryCon) GO
@@ -891,10 +913,12 @@ proc RetriveDutFam {{dutInitName ""}} {
   }
   
   if {[string match *\.RG\.* $dutInitName]} {
-    #set gaSet(dutFam.rg) rg
+    set gaSet(dutFam.rg) RG
   } else {
-    #set gaSet(dutFam.rg) 0
+    set gaSet(dutFam.rg) 0
   }
+  set idx [lsearch $fieldsL $gaSet(dutFam.rg)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   set qty [regexp -all {\.(LR[A1-6]?)\.} $dutInitName ma lora]
   set qty [regexp -all {\.(LR[A-Z1-6]+?)\.} $dutInitName ma lora]
@@ -906,11 +930,13 @@ proc RetriveDutFam {{dutInitName ""}} {
       LR3  {set gaSet(dutFam.lora.region) au915; set gaSet(dutFam.lora.band) "AU 915-928 Sub-band 2"}
       LR4  {set gaSet(dutFam.lora.region) us902; set gaSet(dutFam.lora.band) "US 902-928 Sub-band 2"}
       LR6  {set gaSet(dutFam.lora.region) as923; set gaSet(dutFam.lora.band) "AS 923-925"}
-      LRAC {set gaSet(dutFam.lora.region) us902; set gaSet(dutFam.lora.band) "US 902-928 Sub-band 2"}
     }
+    ## 10:46 26/12/2023 LRAC {set gaSet(dutFam.lora.region) us902; set gaSet(dutFam.lora.band) "US 902-928 Sub-band 2"}
   } else {
     set gaSet(dutFam.lora) 0
   }
+  set idx [lsearch $fieldsL $gaSet(dutFam.lora)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   set qty [regexp -all {\.(PLC|PLCD|PLCGO|PLC12|PLC24)\.} $dutInitName ma plc]
   if $qty {
@@ -918,19 +944,27 @@ proc RetriveDutFam {{dutInitName ""}} {
   } else {
     set gaSet(dutFam.plc) 0
   }
+  set idx [lsearch $fieldsL $gaSet(dutFam.plc)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
+  set idx [lsearch $fieldsL "3CL"]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   if {[string match *\.2R\.* $dutInitName]} {
     set gaSet(dutFam.mem) 2
+    set idx [lsearch $fieldsL ${gaSet(dutFam.mem)}R]
+    set fieldsL [lreplace $fieldsL $idx $idx]
   } else {
     set gaSet(dutFam.mem) 1
   }
   
+  puts "fieldsL:<$fieldsL>"
   puts "[parray gaSet dut*]\n" ; update
-#   foreach nam [array names gaSet dutFam.*] {
-#     puts -nonewline "$gaSet($nam)."
-#   }
-#   puts "$dutInitName"
 
+  if [llength $fieldsL] {
+    RLSound::Play fail
+    set res [DialogBox -title "Unknown option" -message "The following is unknown:\n\n$fieldsL"\
+      -type OK -icon /images/error]
+  }
 
 }  
 
