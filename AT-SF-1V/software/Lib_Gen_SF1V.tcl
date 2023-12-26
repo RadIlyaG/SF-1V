@@ -920,8 +920,8 @@ proc RetriveDutFam {{dutInitName ""}} {
   set idx [lsearch $fieldsL $gaSet(dutFam.rg)]
   set fieldsL [lreplace $fieldsL $idx $idx]
   
-  set qty [regexp -all {\.(LR[A1-6]?)\.} $dutInitName ma lora]
-  set qty [regexp -all {\.(LR[A-Z1-6]+?)\.} $dutInitName ma lora]
+  set qty [regexp -all {\.(LR[1-6]+?)\.} $dutInitName ma lora]
+  #set qty [regexp -all {\.(LR[A-Z1-6]+?)\.} $dutInitName ma lora]
   if $qty {
     set gaSet(dutFam.lora) $lora
     switch -exact -- $lora {
