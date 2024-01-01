@@ -865,6 +865,14 @@ proc SwDownloadPerf {} {
   global gaSet buffer
   puts "[MyTime] SwDownloadPerf"
   set com $gaSet(comDut)
+  if ![file exists $gaSet(UutSWpath)] {
+    set gaSet(fail) "$gaSet(UutSWpath) doesn't exists"
+    return -1
+  }
+  if ![file exists $gaSet(LXDpath)] {
+    set gaSet(fail) "$gaSet(LXDpath) doesn't exists"
+    return -1
+  }
   Send $com "\r" stam 0.25
   Send $com "\r" stam 0.25
   if {[string match *SF1V=>* $buffer]} {
