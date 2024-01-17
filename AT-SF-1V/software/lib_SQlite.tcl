@@ -236,10 +236,12 @@ proc ImeiSQliteAddLine {} {
     return 0
   }
   
-  set RadName [RetriveIdTraceData $Barcode MKTItem4Barcode]
-  puts "ImeiSQliteAddLine RadName:<$RadName>"
-  if {$RadName=="-1"} {
+  set ret [RetriveIdTraceData $Barcode MKTItem4Barcode]
+  puts "ImeiSQliteAddLine ret:<$ret>"
+  if {$ret=="-1"} {
     return -1
+  } else {
+    set RadName [dict get $ret "MKT Item"]
   }
   
   # switch -exact -- $RadName {

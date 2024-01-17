@@ -2046,10 +2046,25 @@ proc RetriveIdTraceData {args} {
   set body $state(body)
   ::http::cleanup $tok
   
-  set re {[{}\[\]\,\t\:\"]}
-  set tt [regsub -all $re $body " "]
-  set ret [regsub -all {\s+}  $tt " "]
+  set asadict [::json::json2dict $body]
+  foreach {name whatis} $asadict {
+    foreach {par val} [lindex $whatis 0] {
+      puts "<$par> <$val>"
+      if {$val!="null"} {
+        dict set di $par $val
+      }  
+    }
+  }
+  if [info exist di] {
+    return $di ; #[dict get $di $retPar]
+  } else {
+    return -1
+  }
   
-  return [lindex $ret end]
+  # set re {[{}\[\]\,\t\:\"]}
+  # set tt [regsub -all $re $body " "]
+  # set ret [regsub -all {\s+}  $tt " "]
+  
+  # return [lindex $ret end]
 }
 
