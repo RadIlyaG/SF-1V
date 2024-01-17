@@ -127,7 +127,7 @@ package require http
 package require tls
 package require base64
 ::http::register https 8445 ::tls::socket
-  
+package require json
 
 source Gui_SF1V.tcl
 source Main_SF1V.tcl
