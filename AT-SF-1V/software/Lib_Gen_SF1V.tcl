@@ -2031,7 +2031,14 @@ proc RetriveIdTraceData {args} {
   set param [set command]\?barcode=[set barcode]\&traceabilityID=[set traceabilityID]
   append url $param
   puts "url:<$url>"
-  set tok [::http::geturl $url -headers [list Authorization "Basic [base64::encode webservices:radexternal]"]]
+  if [catch {::http::geturl $url -headers [list Authorization "Basic [base64::encode webservices:radexternal]"]} tok] {
+    after 2000
+    if [catch {::http::geturl $url -headers [list Authorization "Basic [base64::encode webservices:radexternal]"]} tok] {
+       set gaSet(fail) "Fail to get $command for $barc"
+       return -1
+    }
+  }
+  
   update
   set st [::http::status $tok]
   set nc [::http::ncode $tok]
