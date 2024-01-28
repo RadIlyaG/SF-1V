@@ -45,11 +45,14 @@ Please confirm you know products should not be released to the customer with thi
       }
       }
       {separator}
-      {command "Edit L1 list file" init "" {} -command {exec notepad L1.txt &}}
-      {command "Edit L2 list file" init "" {} -command {exec notepad L2.txt &}}
-      {command "Edit L3 list file" init "" {} -command {exec notepad L3.txt &}}
-      {command "Edit L4 list file" init "" {} -command {exec notepad L4.txt &}}
-      {command "Edit HSP list file" init "" {} -command {exec notepad HSP.txt &}}
+      {cascad "Edit Modems Files" {} {} 0 {
+      {command "Edit L1 file" init "" {} -command {exec notepad L1.txt &}}
+      {command "Edit L2 file" init "" {} -command {exec notepad L2.txt &}}
+      {command "Edit L3 file" init "" {} -command {exec notepad L3.txt &}}
+      {command "Edit L4 file" init "" {} -command {exec notepad L4.txt &}}
+      {command "Edit HSP file" init "" {} -command {exec notepad HSP.txt &}}
+      }
+      }
       {separator}
       {command "Load Modem list files" init "" {} -command {LoadModemFiles}}
       {separator}
