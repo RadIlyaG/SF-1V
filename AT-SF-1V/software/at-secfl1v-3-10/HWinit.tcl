@@ -1,7 +1,7 @@
 #set gaSet(javaLocation) C:\\Program\ Files\\Java\\jre1.8.0_201\\bin\\
 switch -exact -- $gaSet(pair) {
   1 - 5 - SE {
-      set gaSet(comDut)     6; #2
+      set gaSet(comDut)     1; #6; #2
       set gaSet(comSer1)    4
       set gaSet(comSer2)    2; #6
       set gaSet(comSer485)  8
