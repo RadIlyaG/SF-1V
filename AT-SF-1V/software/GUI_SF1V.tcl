@@ -748,6 +748,8 @@ proc ButRun {} {
     catch {unset gaSet(1.imei1)}
     catch {unset gaSet(1.imei2)}
     
+    AddToPairLog $gaSet(pair) "$gaSet(operatorID) $gaSet(operator)"
+    
     set ret 0
     GuiPower all 1 ; ## power ON before OpenRL
     set gaSet(plEn) 0
