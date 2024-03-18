@@ -788,14 +788,21 @@ proc WiFi_5G {run} {
 # PLC
 # ***************************************************************************
 proc PLC {run} {
-  #set ret [PlcPerf] ; #PlcPerf   PlcAnalogInputPerf
-  set ret [PlcAnalogInputPerf] ; #PlcPerf  
+  global gaSet
+  set ret [PlcAnalogInputPerf]
   if {$ret!=0} {return $ret}
-  set ret [PlcDigitalInputPerf]
-  if {$ret!=0} {return $ret} 
-  set ret [PlcDigitalOutPerf]
-  if {$ret!=0} {return $ret} 
-  set ret [PlcLedsPerf]
+  if [string match *PLC30* $gaSet(DutFullName)] {
+    set ret [PlcDigitalInputPerfPlc30]
+    if {$ret!=0} {return $ret} 
+    set ret [PlcLedsPerfPlc30]
+  } else {
+    set ret [PlcDigitalInputPerf]
+    if {$ret!=0} {return $ret}
+    set ret [PlcDigitalOutPerf]
+    if {$ret!=0} {return $ret} 
+    set ret [PlcLedsPerf]
+  }
+  
   return $ret
 }
 # ***************************************************************************

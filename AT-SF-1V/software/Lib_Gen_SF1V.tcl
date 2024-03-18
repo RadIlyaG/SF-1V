@@ -144,6 +144,13 @@ proc OpenPio {} {
   set gaSet(idDI) [RLUsbPio::Open 13 PORT $channel]
   RLUsbPio::SetConfig $gaSet(idDI) 00000000 ; # all 8 pins are OUT
   
+  set gaSet(idAIplc30) [RLUsbPio::Open 16 PORT $channel]
+  RLUsbPio::SetConfig $gaSet(idAIplc30) 00000000 ; # all 8 pins are OUT, 3v3 is supplied to AI 1 and 2
+  set gaSet(idDI1plc30) [RLUsbPio::Open 17 PORT $channel]
+  RLUsbPio::SetConfig $gaSet(idDI1plc30) 00000000 ; # all 8 pins are OUT
+  set gaSet(idDI2plc30) [RLUsbPio::Open 18 PORT $channel]
+  RLUsbPio::SetConfig $gaSet(idDI2plc30) 00000000 ; # all 8 pins are OUT
+  
   return 0
 }
 
@@ -164,6 +171,9 @@ proc ClosePio {} {
   catch {RLUsbPio::Close $gaSet(idPioDrContOut)}
   catch {RLUsbPio::Close $gaSet(idPioDrContIn)}
   catch {RLUsbMmux::Close $gaSet(idMuxMngIO)}
+  catch {RLUsbPio::Close $gaSet(idAIplc30)}
+  catch {RLUsbPio::Close $gaSet(idDI1plc30)}
+  catch {RLUsbPio::Close $gaSet(idDI2plc30)}
   return $ret
 }
 
@@ -938,7 +948,7 @@ proc RetriveDutFam {{dutInitName ""}} {
   set idx [lsearch $fieldsL $gaSet(dutFam.lora)]
   set fieldsL [lreplace $fieldsL $idx $idx]
   
-  set qty [regexp -all {\.(PLC|PLCD|PLCGO|PLC12|PLC24)\.} $dutInitName ma plc]
+  set qty [regexp -all {\.(PLC|PLCD|PLCGO|PLC12|PLC24|PLC30)\.} $dutInitName ma plc]
   if $qty {
     set gaSet(dutFam.plc) $plc
   } else {

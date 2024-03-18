@@ -4129,25 +4129,18 @@ proc PlcAnalogInputPerf {} {
   }  
   
   if {$ret==0} {  
-#     for {set ch 1} {$ch <= 6} {incr ch} {
-#       puts "PLC open relay of DigitalOutput ch:<$ch>"
-#       Send $com "/mnt/extra/modpoll/modpoll -b 115200 -p none -m rtu -t 0 -r $ch -c 1 /dev/ttyS1 0\r" "#"
-#     } 
-#     
-#     for {set ch 1} {$ch <= 6} {incr ch} {
-#       puts "PLC close relay of DigitalOutput ch:<$ch>"
-#       Send $com "/mnt/extra/modpoll/modpoll -b 115200 -p none -m rtu -t 0 -r $ch -c 1 /dev/ttyS1 1\r" "#"
-#     }
-   
-    foreach  AI  {xx000001 xx000010} {}
     foreach AI IN { 
       #xx101010 xx010101 
       #RLUsbPio::Set $gaSet(idAI) $AI
       #RLUsbPio::SetConfig $gaSet(idAI) 00000000
       #puts "\n\nAnalog Input: $AI"
       #after 2000
-      set ret [Send $com "/mnt/extra/modpoll/modpoll -1 -b 115200 -p none -m rtu -t 3 -r 1 -c 6 /dev/ttyS1\r" "#"]
-      for {set ch 1} {$ch <= 6} {incr ch} {  
+      set AIqty 6
+      if [string match *PLC30* $gaSet(DutFullName)] {
+        set AIqty 2
+      }
+      set ret [Send $com "/mnt/extra/modpoll/modpoll -1 -b 115200 -p none -m rtu -t 3 -r 1 -c $AIqty /dev/ttyS1\r" "#"]
+      for {set ch 1} {$ch <= $AIqty} {incr ch} {  
         set res [regexp "\\\[$ch\\\]\\:\\s+\(\-?\\d+\)\\s" $buffer ma val]
         if {$res eq 0} {
           set gaSet(fail) "Read Analog Input fail"
@@ -4158,6 +4151,9 @@ proc PlcAnalogInputPerf {} {
         if [string match *6CL* $gaSet(DutFullName)] {
           set min 800
           set max 1600
+        } elseif [string match *PLC30* $gaSet(DutFullName)] {
+          set min 6300
+          set max 7200
         } else {
           # 10:48 24/07/2023 if {$plc=="PLC24" || $plc=="PLC"} {}
           if {$plc=="PLC24"} {
@@ -4267,7 +4263,73 @@ proc PlcDigitalInputPerf {} {
   
   
   return $ret
+} 
+
+# ***************************************************************************
+# PlcDigitalInputPerfPlc30
+# ***************************************************************************
+proc PlcDigitalInputPerfPlc30 {} {
+  global gaSet buffer
+  puts "[MyTime] PlcDigitalInputPerfPlc30"
+  
+  set com $gaSet(comDut)
+  Send $com "\r" stam 0.25
+  Send $com "\r" stam 0.25
+  if {[string match *\#* $buffer] && [string length $buffer]<5} {
+    ## we are inside the Linux box already
+  } else {  
+    Send $com "exit\r\r" "stam" 3 
+    Send $com "\33" "stam" 1  
+    Send $com "\r\r" "stam" 2       
+    if {[string match *login:* $buffer]} {
+      set ret 0
+    } else {
+      Power all off
+      after 3000
+      Power all on
+      set ret [ReadCom $com "login:" 180]
+      puts "ret after readComLogin:<$ret>" ; update 
+    }
+    if {$ret!=0} {return $ret}
+    
+    Send $com "root\r" "assword"
+    Send $com "xbox360\r" "stam" 2
+    set ret [DescrPassword "tech" "\#"]
+    if {$ret=="-1"} {
+      set gaSet(fail) "Enter to Linux shell fail"
+    }
+  }
+  
+  set ret [Send $com "chmod 755 /mnt/extra/modpoll/modpoll\r" "#"]
+  if {$ret!=0} {
+    set gaSet(fail) "Modpoll ChangeMode fail"
+    return -1 
+  }  
+     
+  foreach DI {0101010101 1010101010} {
+    RLUsbPio::Set $gaSet(idDI1plc30) [string range $DI 0 7]
+    RLUsbPio::Set $gaSet(idDI2plc30) [string range $DI 0 7]
+    puts "\nDI : $DI"
+    #puts "PLC read DigitalInput ch:<$ch>"
+    set ret [Send $com "/mnt/extra/modpoll/modpoll -1 -b 115200 -p none -m rtu -t 1 -r 1 -c 10 /dev/ttyS1\r" "#"]
+    after 2000
+    set ret [Send $com "/mnt/extra/modpoll/modpoll -1 -b 115200 -p none -m rtu -t 1 -r 1 -c 10 /dev/ttyS1\r" "#"]
+    foreach ch {1 2 3 4 5 6 7 8 9 10} {
+      set res [regexp "\\\[$ch\\\]\\:\\s+\(\\d\+\)\\s" $buffer ma val$ch]
+      #puts "ch:<$ch> val<[set val$ch]>"
+    }
+    foreach ch {1 2 3 4 5 6 7 8 9 10} {
+      set di$ch [string index $DI end-[expr {$ch-1}]]
+      puts "ch:$ch di$ch:<[set di$ch]> val$ch:<[set val$ch]>"
+      if {[set val$ch] ne [set di$ch]}  {
+        set gaSet(fail) "The Digital Input of ch-$ch is [set val$ch]. Should be [set di$ch]" 
+        return -1
+      }
+    }
+  }    
+  return $ret
 }    
+   
 
 # ***************************************************************************
 # PlcDigitalOutPerf
@@ -4467,6 +4529,78 @@ proc PlcLedsPerf {}  {
   set ret [DialogBox -title "Digital On/OUT led Test" -type "OK Cancel" -icon images/info -text $txt] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "Digital On/OUT led test fail"
+    return -1 
+  }
+  
+  return 0
+}
+# ***************************************************************************
+# PlcLedsPerfPlc30
+# ***************************************************************************
+proc PlcLedsPerfPlc30 {}  {
+  global gaSet buffer
+  puts "[MyTime] PlcLedsPerfPlc30"
+  
+  set com $gaSet(comDut)
+  Send $com "\r" stam 0.25
+  Send $com "\r" stam 0.25
+  if {[string match *\#* $buffer] && [string length $buffer]<5} {
+    ## we are inside the Linux box already
+  } else {  
+    Send $com "exit\r\r" "stam" 3 
+    Send $com "\33" "stam" 1  
+    Send $com "\r\r" "stam" 2       
+    if {[string match *login:* $buffer]} {
+      set ret 0
+    } else {
+      Power all off
+      after 3000
+      Power all on
+      set ret [ReadCom $com "login:" 180]
+      puts "ret after readComLogin:<$ret>" ; update 
+    }
+    if {$ret!=0} {return $ret}
+    
+    Send $com "root\r" "assword"
+    Send $com "xbox360\r" "stam" 2
+    set ret [DescrPassword "tech" "\#"]
+    if {$ret=="-1"} {
+      set gaSet(fail) "Enter to Linux shell fail"
+    }
+  }
+  
+  set ret [Send $com "chmod 755 /mnt/extra/modpoll/modpoll\r" "#"]
+  if {$ret!=0} {
+    set gaSet(fail) "Modpoll ChangeMode fail"
+    return -1 
+  }  
+  
+  # for {set ch 1} {$ch <= 6} {incr ch} {
+    # Send $com "/mnt/extra/modpoll/modpoll -b 115200 -p none -m rtu -t 0 -r $ch -c 1 /dev/ttyS1 1\r" "#"
+  # }
+  # RLUsbPio::Set $gaSet(idDI) 11111111
+  RLUsbPio::Set $gaSet(idDI1plc30) 11111111
+  RLUsbPio::Set $gaSet(idDI2plc30) 11111111
+  RLSound::Play information
+  set txt "Verify 5VDC between + and - of the Digital IN connector\n\
+  Verify 10 Green DIGITAL IN are ON"
+  set ret [DialogBox -title "Digital IN/OUT Led Test" -type "OK Cancel" -icon images/info -text $txt] 
+  if {$ret=="Cancel"} {
+    set gaSet(fail) "Digital IN Led Test fail"
+    return -1 
+  }
+  
+  # for {set ch 1} {$ch <= 6} {incr ch} {
+    # Send $com "/mnt/extra/modpoll/modpoll -b 115200 -p none -m rtu -t 0 -r $ch -c 1 /dev/ttyS1 0\r" "#"
+  # }
+  # RLUsbPio::Set $gaSet(idDI) 00000000
+  RLUsbPio::Set $gaSet(idDI1plc30) 00000000
+  RLUsbPio::Set $gaSet(idDI2plc30) 00000000
+  RLSound::Play information
+  set txt "Verify 10 DIGITAL IN are OFF"
+  set ret [DialogBox -title "Digital IN led Test" -type "OK Cancel" -icon images/info -text $txt] 
+  if {$ret=="Cancel"} {
+    set gaSet(fail) "Digital IN Led Test fail"
     return -1 
   }
   
