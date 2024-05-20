@@ -731,9 +731,11 @@ proc Uboot2eMMC {} {
   set ret [Send $com "bubt [file tail $gaSet(UbootSWpath)] mmc\r" "SF1V=>" 180]
   if {$ret!=0} {return $ret}
   
-  if {[string match {*checksum..OK*} $buffer] && [string match {*Done*} $buffer] } {
+  if {[string match {*checksum...OK*} $buffer] && [string match {*Done*} $buffer] } {
+    set ret 0
+  } else {  
     set gaSet(fail) "Burning UBOOT to eMMC fail"
-    set ret -1
+    return -1
   }
   set ret [Send $com "reset\r" "resetting"]
   if {$ret!=0} {return $ret}
