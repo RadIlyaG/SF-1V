@@ -621,6 +621,7 @@ proc CaptureConsole {} {
 proc ButRun {} {
   global gaSet gaGui glTests gRelayState
   
+  Ramzor green on
   pack forget $gaGui(frFailStatus)
   Status ""
   focus $gaGui(tbrun) 
@@ -655,7 +656,9 @@ proc ButRun {} {
  
   set gRelayState red
   IPRelay-LoopRed
+  Ramzor red on
   set ret [GuiReadOperator]
+  Ramzor green on
   parray gaSet *arco*
   parray gaSet *rato*
   if {$ret!=0} {
@@ -688,7 +691,7 @@ proc ButRun {} {
       RLSound::Play information
       set txt "Be aware!\r\rYou are about to perform tests in Debug mode.\r\r\
       If you are not sure, in the GUI's \'Tools\'->\'Release / Debug mode\' choose \"Release Mode\""
-      set res [DialogBox -icon images/info -type "Continue Abort" -text $txt -default 1 -aspect 2000 -title "ETX-2i-10G"]
+      set res [DialogBoxRamzor -icon images/info -type "Continue Abort" -text $txt -default 1 -aspect 2000 -title "ETX-2i-10G"]
       if {$res=="Abort"} {
         set ret -1
         set gaSet(fail) "Debug mode abort"

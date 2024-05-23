@@ -181,7 +181,7 @@ proc UbootDownload {run} {
     MuxMngIO 2ToPc
     RLSound::Play information
     Power all off
-    set res [DialogBox -title "Reset button" -type "Continue Stop" -icon /images/info\
+    set res [DialogBoxRamzor -title "Reset button" -type "Continue Stop" -icon /images/info\
         -text "Press and do not release the Reset botton of the UUT. \n\
         Press Continue and then after 8-10 seconds release the button"]
     if {$res=="Stop"} {
@@ -199,7 +199,7 @@ proc UbootDownload {run} {
       puts "ret after readComUart:<$ret>" ; update
       
       if {$ret!=0} {
-        set res [DialogBox -title "Reset button" -type {"Try again" Stop} -icon /images/question\
+        set res [DialogBoxRamzor -title "Reset button" -type {"Try again" Stop} -icon /images/question\
           -text "Entry to UART fail. Try again?\r"]
         if {$res=="Stop"} {
           set gaSet(fail) "Entry to UART fail"
@@ -263,7 +263,7 @@ proc neUbootDownload {run} {
   global gaSet buffer
   RLSound::Play information
   Power all off
-  set res [DialogBox -title "Reset button" -type "Continue Stop" -icon /images/info\
+  set res [DialogBoxRamzor -title "Reset button" -type "Continue Stop" -icon /images/info\
       -text "Press and do not release the Reset botton of the UUT. \n\Press Continue"]
   if {$res=="Stop"} {
     set ret -2
@@ -276,7 +276,7 @@ proc neUbootDownload {run} {
     set ret [ReadCom $com "Trying Uart" 10]
     puts "ret after readComUart:<$ret>" ; update
     #after 10000 
-    set res [DialogBox -title "Reset button" -text "Release the Reset botton. \nPress Continue" \
+    set res [DialogBoxRamzor -title "Reset button" -text "Release the Reset botton. \nPress Continue" \
       -type "Continue Stop" -icon /images/info]
     if {$res=="Stop"} {
       set ret -2
@@ -742,7 +742,7 @@ proc WiFi_5G {run} {
   
   RLSound::Play information
   set txt "Connect Antenna to AUX2. Verify no Antenna on MAIN2"
-  set ret [DialogBox -title "WiFi 5G Test" -type "OK Cancel" -icon images/info -text $txt] 
+  set ret [DialogBoxRamzor -title "WiFi 5G Test" -type "OK Cancel" -icon images/info -text $txt] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "WiFi $baud fail"
     return -1 

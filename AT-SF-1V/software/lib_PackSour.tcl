@@ -127,6 +127,7 @@ package require http
 package require tls
 package require base64
 ::http::register https 8445 ::tls::socket
+::http::register https 8443 ::tls::socket
 package require json
 
 source Gui_SF1V.tcl
@@ -151,6 +152,9 @@ if [file exists uutInits/$gaSet(DutInitName)] {
 source lib_SQlite.tcl
 source LibUrl.tcl
 source Lib_GetOperator.tcl
+
+source Lib_Ramzor.tcl
+source lib_EcoCheck.tcl
 
 set gaSet(act) 1
 set gaSet(initUut) 1

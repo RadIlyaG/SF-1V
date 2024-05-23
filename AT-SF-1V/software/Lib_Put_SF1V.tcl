@@ -2551,7 +2551,7 @@ proc AlarmRunLedsPerf {} {
   Remove SFP-9G, DiskOnKey, SIM (if exist) and SD cards\n\
   Disconnect Antenna/s from MAIN (and MAIN-2 if exists) and GPS (if exists).\n\
   Connect Antenna to AUX (and to AUX-2 if exists)."
-  set ret [DialogBox -title "ALM led Test" -type "OK Cancel" -icon images/info -text $txt] 
+  set ret [DialogBoxRamzor -title "ALM led Test" -type "OK Cancel" -icon images/info -text $txt] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "ALM led test fail"
     return -1 
@@ -2579,7 +2579,7 @@ proc AlarmRunLedsPerf {} {
   set ret [Send $com "gpio clear 26\r" "SF1V=>"]  
   if {$ret!=0} {set gaSet(fail) "Set run ON fail" ; return $ret}
   RLSound::Play information
-  set ret [DialogBox -title "ALM led Test" -type "OK Cancel" -icon images/info\
+  set ret [DialogBoxRamzor -title "ALM led Test" -type "OK Cancel" -icon images/info\
       -text "Verify the red ALM is blinking and the green RUN is ON" -aspect 2000] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "ALM led test fail"
@@ -2591,7 +2591,7 @@ proc AlarmRunLedsPerf {} {
   set ret [Send $com "gpio set 26\r" "SF1V=>"]  
   if {$ret!=0} {set gaSet(fail) "Set run OFF fail" ; return $ret} 
   RLSound::Play information
-  set ret [DialogBox -title "ALM led Test" -type "OK Cancel" -icon images/info\
+  set ret [DialogBoxRamzor -title "ALM led Test" -type "OK Cancel" -icon images/info\
   -text "Verify the ALM and RUN leds are off"] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "ALM led test fail"
@@ -2673,7 +2673,7 @@ proc FrontLedsPerf {} {
       Sim 1 and 2 are green (if exist)\n\
       PWR is green"
       RLSound::Play information
-      set ret [DialogBox -title "Front leds Test" -type "OK Cancel" -icon images/info -text $txt] 
+      set ret [DialogBoxRamzor -title "Front leds Test" -type "OK Cancel" -icon images/info -text $txt] 
       if {$ret=="Cancel"} {
         set gaSet(fail) "Front leds Test fail"
         return -1 
@@ -2695,7 +2695,7 @@ proc FrontLedsPerf {} {
       Sim 1 and 2 are OFF (if exist)\n\
       PWR is green"
       RLSound::Play information
-      set ret [DialogBox -title "Front leds Test" -type "OK Cancel" -icon images/info -text $txt] 
+      set ret [DialogBoxRamzor -title "Front leds Test" -type "OK Cancel" -icon images/info -text $txt] 
       if {$ret=="Cancel"} {
         set gaSet(fail) "Front leds Test fail"
         return -1 
@@ -2968,7 +2968,7 @@ proc WifiPerf {baud locWifiReport} {
     regexp {result: (-?1) } $res ma ret
     RLSound::Play information
     set txt "Disconnect Antenna from MAIN2"
-    set ret [DialogBox -title "WiFi $baud Test" -type "OK Cancel" -icon images/info -text $txt] 
+    set ret [DialogBoxRamzor -title "WiFi $baud Test" -type "OK Cancel" -icon images/info -text $txt] 
     if {$ret=="Cancel"} {
       set gaSet(fail) "WiFi $baud fail"
       return -1 
@@ -3286,7 +3286,7 @@ proc PlcPerf {} {
   }  
   RLSound::Play information
   set txt "Verify 6 DIGITAL IN and 6 DIGITAL OUT are OFF"
-  set ret [DialogBox -title "Digital On/OUT led Test" -type "OK Cancel" -icon images/info -text $txt] 
+  set ret [DialogBoxRamzor -title "Digital On/OUT led Test" -type "OK Cancel" -icon images/info -text $txt] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "Digital On/OUT led test fail"
     return -1 
@@ -3324,7 +3324,7 @@ proc PlcPerf {} {
    
     RLSound::Play information
     set txt "Verify 6 Green DIGITAL IN and 6 Red DIGITAL OUT are ON"
-    set ret [DialogBox -title "Digital On/OUT led Test" -type "OK Cancel" -icon images/info -text $txt] 
+    set ret [DialogBoxRamzor -title "Digital On/OUT led Test" -type "OK Cancel" -icon images/info -text $txt] 
     if {$ret=="Cancel"} {
       set gaSet(fail) "Digital On/OUT led test fail"
       set ret -1
@@ -4516,7 +4516,7 @@ proc PlcLedsPerf {}  {
   RLSound::Play information
   set txt "Verify 5VDC between + and - of the Digital IN connector\n\
   Verify 6 Green DIGITAL IN and 6 Red DIGITAL OUT are ON"
-  set ret [DialogBox -title "Digital On/OUT led Test" -type "OK Cancel" -icon images/info -text $txt] 
+  set ret [DialogBoxRamzor -title "Digital On/OUT led Test" -type "OK Cancel" -icon images/info -text $txt] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "Digital On/OUT led test fail"
     return -1 
@@ -4528,7 +4528,7 @@ proc PlcLedsPerf {}  {
   RLUsbPio::Set $gaSet(idDI) 00000000
   RLSound::Play information
   set txt "Verify 6 DIGITAL IN and 6 DIGITAL OUT are OFF"
-  set ret [DialogBox -title "Digital On/OUT led Test" -type "OK Cancel" -icon images/info -text $txt] 
+  set ret [DialogBoxRamzor -title "Digital On/OUT led Test" -type "OK Cancel" -icon images/info -text $txt] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "Digital On/OUT led test fail"
     return -1 
@@ -4586,7 +4586,7 @@ proc PlcLedsPerfPlc30 {}  {
   RLSound::Play information
   set txt "Verify 5VDC between + and - of the Digital IN connector\n\
   Verify 10 Green DIGITAL IN are ON"
-  set ret [DialogBox -title "Digital IN/OUT Led Test" -type "OK Cancel" -icon images/info -text $txt] 
+  set ret [DialogBoxRamzor -title "Digital IN/OUT Led Test" -type "OK Cancel" -icon images/info -text $txt] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "Digital IN Led Test fail"
     return -1 
@@ -4600,7 +4600,7 @@ proc PlcLedsPerfPlc30 {}  {
   RLUsbPio::Set $gaSet(idDI2plc30) 00000000
   RLSound::Play information
   set txt "Verify 10 DIGITAL IN are OFF"
-  set ret [DialogBox -title "Digital IN led Test" -type "OK Cancel" -icon images/info -text $txt] 
+  set ret [DialogBoxRamzor -title "Digital IN led Test" -type "OK Cancel" -icon images/info -text $txt] 
   if {$ret=="Cancel"} {
     set gaSet(fail) "Digital IN Led Test fail"
     return -1 
