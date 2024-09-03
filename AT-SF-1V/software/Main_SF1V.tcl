@@ -586,6 +586,7 @@ proc Data {run port} {
   
   #foreach port {1 2 3 4 5} {}
   set gaSet(fail) ""
+  set res [RouterRemove]
   set ret [DataPerf $port]
   set fail $gaSet(fail)
   set res [RouterRemove]
