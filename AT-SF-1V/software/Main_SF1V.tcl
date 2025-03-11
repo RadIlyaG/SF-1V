@@ -17,63 +17,67 @@ proc BuildTests {} {
 #   eval lappend lTestsAllTests $lDownloadTests
   
   set lTestNames [list]
-  lappend lTestNames UbootDownload UbootVersion 
   
-  lappend lTestNames BrdEeprom SwDownload
-#   if {![string match *VB-101V* $gaSet(dutFam.sf)]} {
-#     lappend lTestNames BrdEeprom SwDownload
-#   }
-#   
-  if {[string match *VB-101V* $gaSet(dutFam.sf)]} {
-    lappend lTestNames VB101V_SwDownload
-  }
-  
-  lappend lTestNames PowerSupply UsbMicroSD DryContactAlarm
-  lappend lTestNames ID
-  
-  if {[string index $gaSet(dutFam.cell) 0]=="1"} {
-    if {[string index $gaSet(dutFam.cell) 2]=="4"} {
-      lappend lTestNames CellularModemL4_slot1 CellularModemL4_slot2
-    } else {
-      lappend lTestNames CellularModem_slot1 CellularModem_slot2
-    } 
-  } elseif {[string index $gaSet(dutFam.cell) 0]=="2"} {
-    if {[string index $gaSet(dutFam.cell) 2]=="4"} {
-      lappend lTestNames CellularDualModemL4
-    } else {
-      lappend lTestNames CellularDualModem
+  if {$gaSet(testmode) == "dataPwrOnOff"} {
+    lappend lTestNames DataPwrOnOff  
+  } else {
+    lappend lTestNames UbootDownload UbootVersion 
+    lappend lTestNames BrdEeprom SwDownload
+  #   if {![string match *VB-101V* $gaSet(dutFam.sf)]} {
+  #     lappend lTestNames BrdEeprom SwDownload
+  #   }
+  #   
+    if {[string match *VB-101V* $gaSet(dutFam.sf)]} {
+      lappend lTestNames VB101V_SwDownload
     }
-  }
-  
-  lappend lTestNames Data_Eth1 Data_Eth2 Data_Eth3 Data_Eth4 Data_Eth5 
-  
-  if {$gaSet(dutFam.serPort)!="0"} {
-    lappend lTestNames SerialPorts
-  }
-  
-  if {$gaSet(dutFam.gps)!="0"} {
-    lappend lTestNames GPS
-  }
-  
-  if {$gaSet(dutFam.wifi)!="0"} {
-    lappend lTestNames WiFi_2G  WiFi_5G
-  }
-  
-  if {$gaSet(dutFam.lora)!="0"} {
-    lappend lTestNames LoRa
-  }
-  
-  if {$gaSet(dutFam.poe)!="0"} {
-    lappend lTestNames POE
-  }
-  if {$gaSet(dutFam.plc)!="0"} {
-    lappend lTestNames PLC
-  }
-  
-  
-  lappend lTestNames AlarmRunLeds CloseUboot_FrontLeds Factory_Settings
-  if !$gaSet(demo) {
-    lappend lTestNames Mac_BarCode
+    
+    lappend lTestNames PowerSupply UsbMicroSD DryContactAlarm
+    lappend lTestNames ID
+    
+    if {[string index $gaSet(dutFam.cell) 0]=="1"} {
+      if {[string index $gaSet(dutFam.cell) 2]=="4"} {
+        lappend lTestNames CellularModemL4_slot1 CellularModemL4_slot2
+      } else {
+        lappend lTestNames CellularModem_slot1 CellularModem_slot2
+      } 
+    } elseif {[string index $gaSet(dutFam.cell) 0]=="2"} {
+      if {[string index $gaSet(dutFam.cell) 2]=="4"} {
+        lappend lTestNames CellularDualModemL4
+      } else {
+        lappend lTestNames CellularDualModem
+      }
+    }
+    
+    lappend lTestNames Data_Eth1 Data_Eth2 Data_Eth3 Data_Eth4 Data_Eth5 
+    
+    if {$gaSet(dutFam.serPort)!="0"} {
+      lappend lTestNames SerialPorts
+    }
+    
+    if {$gaSet(dutFam.gps)!="0"} {
+      lappend lTestNames GPS
+    }
+    
+    if {$gaSet(dutFam.wifi)!="0"} {
+      lappend lTestNames WiFi_2G  WiFi_5G
+    }
+    
+    if {$gaSet(dutFam.lora)!="0"} {
+      lappend lTestNames LoRa
+    }
+    
+    if {$gaSet(dutFam.poe)!="0"} {
+      lappend lTestNames POE
+    }
+    if {$gaSet(dutFam.plc)!="0"} {
+      lappend lTestNames PLC
+    }
+    
+    
+    lappend lTestNames AlarmRunLeds CloseUboot_FrontLeds Factory_Settings
+    if !$gaSet(demo) {
+      lappend lTestNames Mac_BarCode
+    }
   }
   
   eval lappend lTestsAllTests $lTestNames
@@ -587,9 +591,14 @@ proc Data {run port} {
   #foreach port {1 2 3 4 5} {}
   set gaSet(fail) ""
   set res [RouterRemove]
+  puts "Data ret of RouterRemove: $res"
+  if {$gaSet(act)==0} {return -2}
   set ret [DataPerf $port]
+  puts "Data ret of DataPerf: $ret"
+  if {$gaSet(act)==0} {return -2}
   set fail $gaSet(fail)
   set res [RouterRemove]
+  puts "Data ret of RouterRemove: $res"
   if {$res==0} {
     set gaSet(fail) $fail
   } else {
@@ -812,4 +821,63 @@ proc PLC {run} {
 proc LoRa {run} {
   MuxMngIO 2ToPc
   set ret [LoraPerf]
+}
+# ***************************************************************************
+# DataPwrOnOff
+# ***************************************************************************
+proc DataPwrOnOff {run} {
+  global gaSet buffer
+  set allPass 0
+  set allFail 0
+  set fail ""
+  for {set i 1} {$i<=$gaSet(PowerOnOff.qty)} {incr i} {
+    if {$gaSet(act)==0} {return -2}
+    $gaSet(statBarShortTest) configure -text "${i}/$gaSet(PowerOnOff.qty) Pass=$allPass Fail=$allFail"
+    
+    puts "\n[MyTime] DataPwrOnOff $i"
+    Power all off
+    after 5000
+    Power all on
+  
+    set sevev 0
+    foreach da_eth [list Data_Eth1 Data_Eth2 Data_Eth3 Data_Eth4 Data_Eth5] {
+      set ret [$da_eth $i]
+      incr sevev $ret
+      puts "i:$i ret:$ret sevev:$sevev"
+      set fail $gaSet(fail)
+      AddToPairLog $gaSet(pair) "Cycle $i. Ret of $da_eth :<$ret>"
+      AddToPairLog $gaSet(pair) $fail
+      if {$ret=="-2"} {
+        set fail "User stop"
+        break
+      }
+      # if {$ret!=0} {        
+        # incr allFail 
+        # set fail $gaSet(fail)
+        # AddToPairLog $gaSet(pair) $fail
+        
+      # }
+      # if {$ret==0} {
+        # incr allPass
+      # }
+    }  
+    if {$sevev==0} {
+      incr allPass
+    } else {
+      incr allFail 
+    }   
+    if {$sevev<="-2"} {
+      break
+    }    
+  }
+  set gaSet(fail) $fail
+  $gaSet(statBarShortTest) configure -text "Pass=$allPass Fail=$allFail"
+  AddToPairLog $gaSet(pair) "\nTotal cycles: $gaSet(PowerOnOff.qty). Passes: $allPass, Fails: $allFail" 
+  
+  if {$allFail==0} {
+    set ret 0
+  } else {
+    set ret -1
+  }
+  return $ret
 }

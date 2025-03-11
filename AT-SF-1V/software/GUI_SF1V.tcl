@@ -121,6 +121,11 @@ Please confirm you know products should not be released to the customer with thi
       {command "Serial-2" "" "" {} -command {OpenTeraTerm gaSet(comSer2)}} 
       {command "485-2" "" "" {} -command {OpenTeraTerm gaSet(comSer485)}}                     
     }
+    "Test &mode" testmode testmode 0  {
+      {radiobutton "Final Tests" init {} {} -command {BuildTests} -variable gaSet(testmode) -value finalTests}
+      {radiobutton "Data + Power OFF-ON" init {} {} -command {ConfigPowerOnOff} -variable gaSet(testmode) -value dataPwrOnOff}      
+                          
+    }
     "&About" all about 0 {
       {command "&About" about "" {} -command {About} 
       }
@@ -657,7 +662,12 @@ proc ButRun {} {
   set gRelayState red
   IPRelay-LoopRed
   Ramzor red on
-  set ret [GuiReadOperator]
+  if {$gaSet(testmode) == "dataPwrOnOff"} {
+    set gaSet(operator) operator
+    set gaSet(operatorID) operatorID
+  } else {
+    set ret [GuiReadOperator]
+  }
   Ramzor green on
   parray gaSet *arco*
   parray gaSet *rato*
@@ -865,6 +875,7 @@ proc ButRun {} {
 #***************************************************************************
 proc ButStop {} {
   global gaGui gaSet
+  puts "\nButStop [MyTime]"; update
   set gaSet(act) 0
   $gaGui(tbrun) configure -relief raised -state normal
   $gaGui(tbstop) configure -relief sunken -state disabled
@@ -1151,3 +1162,36 @@ proc GuiReadOperator {} {
     return 0
   }
 }   
+# ***************************************************************************
+# ConfigPowerOnOff
+# ***************************************************************************
+proc ConfigPowerOnOff {} {
+  global gaSet gaDBox
+  set entLab [list]
+  
+  after 500 {
+    if [info exists gaSet(PowerOnOff.qty)] {
+      .tmpldlg.frame.fr.f1.ent1 insert 0 $gaSet(PowerOnOff.qty)
+    } else {
+      .tmpldlg.frame.fr.f1.ent1 insert 0  100
+    }
+    # if [info exists gaSet(PowerOnOff.dur)] {
+      # .tmpldlg.frame.fr.f2.ent2 insert 0 $gaSet(PowerOnOff.dur)
+    # } else {
+      # .tmpldlg.frame.fr.f2.ent2 insert 0 1
+    # }
+    .tmpldlg.frame.fr.f1.ent1 configure -justify center
+    # .tmpldlg.frame.fr.f2.ent2 configure -justify center
+  }
+  lappend entLab "Quantity of the ON-OFF cycles"
+  #lappend entLab "Data transmission duration, in minutes"
+  set ret [DialogBox -title "Data + Power OFF-ON" -entQty 1 -type "Accept Cancel" -entLab $entLab]
+  if {$ret=="Cancel"} {
+    return -2
+  }
+  set gaSet(PowerOnOff.qty)  [string trim $gaDBox(entVal1)]
+  set gaSet(PowerOnOff.dur)  na; #[string trim $gaDBox(entVal2)]
+  
+  BuildTests
+}
+

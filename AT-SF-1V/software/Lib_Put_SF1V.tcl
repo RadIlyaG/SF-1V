@@ -2062,6 +2062,7 @@ proc DataPerf {port} {
   
   set gaSet(fail) "Configuration Eth-$port fail" 
   set ret [RouterCreate $port]
+  puts "DataPerf ret of RouterCreate: $ret" ; update
   if {$ret!=0} {return $ret}
   
   set com $gaSet(comDut)
@@ -2093,7 +2094,11 @@ proc DataPerf {port} {
   set ret [Send $com "rm /tmp/EthTestRef*\r" "#"]
   if {$ret!=0} {
     set gaSet(fail) "Delete old testing files fail"
-    return -1
+    if {$ret=="-2"} {
+      return $ret
+    } else {
+      return -1
+    }
   }
   if [catch {file delete -force c:/download/sf1v/EthTestCheck.$gaSet(pair).$port} res] {
     set gaSet(fail) "$res" 
@@ -2112,7 +2117,11 @@ proc DataPerf {port} {
   set ret [Send $com "tftp -g -r EthTestRef$port -l /tmp/EthTestRef$port 10.10.10.10\r" "#" 25]
   if {$ret!=0} {
     set gaSet(fail) "Download file to UUT via ETH-$port fail"
-    return -1
+    if {$ret=="-2"} {
+      return $ret
+    } else {
+      return -1
+    }
   }
   Send $com "ls /tmp/Eth*\r" rr 1
   if {[string match {*No such file or directory*} $buffer]} {
@@ -2126,7 +2135,11 @@ proc DataPerf {port} {
   set ret [Send $com "tftp -p -l /tmp/EthTestRef$port -r EthTestCheck.$gaSet(pair).$port  10.10.10.10\r" "#" 25]
   if {$ret!=0} {
     set gaSet(fail) "Upload file to PC via ETH-$port fail"
-    return -1
+    if {$ret=="-2"} {
+      return $ret
+    } else {
+      return -1
+    }
   }
   
   if {[string match *error* $buffer]} {
@@ -2196,6 +2209,7 @@ proc RouterCreate {port} {
     set gaSet(fail) "Router Create on Eth-$port fail" 
     return -1
   }
+  if {$gaSet(act)==0} {return -2}
   
   Status "Check Eth-$port link status"
   set ret [Send $com "port show status\r" $gaSet(appPrompt)]
@@ -2203,6 +2217,8 @@ proc RouterCreate {port} {
     set gaSet(fail) "Read port show status fail" 
     return -1
   }
+  if {$gaSet(act)==0} {return -2}
+  
   set res [regexp "eth$port\[\\s\\|\]+\(UP\|DOWN\)\\s" $buffer ma val]
   if {$res==0} {
     set gaSet(fail) "Read port show status fail" 
@@ -2216,11 +2232,14 @@ proc RouterCreate {port} {
       set gaSet(fail) "Read port show status fail" 
       return -1
     }
+    if {$gaSet(act)==0} {return -2}
+    
     set res [regexp "eth$port\[\\s\\|\]+\(UP\|DOWN\)\\s" $buffer ma val]
     if {$res==0} {
       set gaSet(fail) "Read port show status fail" 
       return -1
     }
+    
     puts "RouterCreate $port ma:<$ma> val:<$val>"
     if {$val!="UP"} {
       after 10000
@@ -2229,6 +2248,8 @@ proc RouterCreate {port} {
         set gaSet(fail) "Read port show status fail" 
         return -1
       }
+      if {$gaSet(act)==0} {return -2}
+      
       set res [regexp "eth$port\[\\s\\|\]+\(UP\|DOWN\)\\s" $buffer ma val]
       if {$res==0} {
         set gaSet(fail) "Read port show status fail" 
@@ -2247,7 +2268,6 @@ proc RouterCreate {port} {
   } else {
     set ret "0"
   }
-  
   return $ret
 }
 # ***************************************************************************
@@ -2273,7 +2293,11 @@ proc RouterRemove {} {
   set ret [Send $com "router interface remove interface-id 1\r" "$gaSet(appPrompt)"]
   if {$ret!=0} {
     set gaSet(fail) "Router Remove fail"
-    return -1
+    if {$ret=="-2"} {
+      return $ret
+    } else {
+      return -1
+    }
   }
   
   return $ret

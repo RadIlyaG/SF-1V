@@ -187,6 +187,7 @@ set gaSet(WifiNet) 50.50
 if ![info exists gaSet(demo)] {
   set gaSet(demo) 0
 }
+set gaSet(testmode) finalTests
 
 GUI
 BuildTests
