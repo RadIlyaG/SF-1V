@@ -5,7 +5,7 @@ package require json
 ::http::register https 8445 [list tls::socket -tls1 1]
 package require md5
 
-package provide RLWS 1.6
+package provide RLWS 1.7
 
 namespace eval RLWS { 
 
