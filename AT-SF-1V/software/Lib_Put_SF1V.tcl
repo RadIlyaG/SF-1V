@@ -2180,7 +2180,11 @@ proc DataPerf {port} {
       puts "\n fail file delete -force $chk , res: <$res>"
       update
     }
-  }
+  }    
+  
+  if {$ret==0} {
+    set gaSet(fail) ""
+  } 
   
   return $ret
 }  

@@ -1175,22 +1175,23 @@ proc ConfigPowerOnOff {} {
     } else {
       .tmpldlg.frame.fr.f1.ent1 insert 0  100
     }
-    # if [info exists gaSet(PowerOnOff.dur)] {
-      # .tmpldlg.frame.fr.f2.ent2 insert 0 $gaSet(PowerOnOff.dur)
-    # } else {
-      # .tmpldlg.frame.fr.f2.ent2 insert 0 1
-    # }
+    if [info exists gaSet(PowerOnOff.sof)] {
+      .tmpldlg.frame.fr.f2.ent2 insert 0 $gaSet(PowerOnOff.sof)
+    } else {
+      .tmpldlg.frame.fr.f2.ent2 insert 0 1
+    }
     .tmpldlg.frame.fr.f1.ent1 configure -justify center
-    # .tmpldlg.frame.fr.f2.ent2 configure -justify center
+    .tmpldlg.frame.fr.f2.ent2 configure -justify center
   }
   lappend entLab "Quantity of the ON-OFF cycles"
-  #lappend entLab "Data transmission duration, in minutes"
-  set ret [DialogBox -title "Data + Power OFF-ON" -entQty 1 -type "Accept Cancel" -entLab $entLab]
+  lappend entLab "Type 1 to Stop on Fail, otherwise 0"
+  set ret [DialogBox -title "Data + Power OFF-ON" -entQty [llength $entLab] -type "Accept Cancel" -entLab $entLab]
   if {$ret=="Cancel"} {
     return -2
   }
   set gaSet(PowerOnOff.qty)  [string trim $gaDBox(entVal1)]
   set gaSet(PowerOnOff.dur)  na; #[string trim $gaDBox(entVal2)]
+  set gaSet(PowerOnOff.sof)  [string trim $gaDBox(entVal2)]
   
   BuildTests
 }

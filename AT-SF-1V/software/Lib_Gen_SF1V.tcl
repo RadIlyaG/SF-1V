@@ -1406,7 +1406,8 @@ proc GetDbrSW {barcode} {
     return -1
   }
   
-  catch {exec $gaSet(javaLocation)\\java -jar $::RadAppsPath/SWVersions4IDnumber.jar $barcode} b
+  ##catch {exec $gaSet(javaLocation)\\java -jar $::RadAppsPath/SWVersions4IDnumber.jar $barcode} b
+  foreach {res b} [::RLWS::Get_SwVersions $barcode] {}
   puts "GetDbrSW b:<$b>" ; update
   after 1000
   if ![info exists gaSet(dbrUbootSWnum)] {
@@ -1447,8 +1448,8 @@ proc GetDbrSW {barcode} {
   
   pack forget $gaGui(frFailStatus)
   
-  set swTxt [glob SW*_$barcode.txt]
-  catch {file delete -force $swTxt}
+  # set swTxt [glob SW*_$barcode.txt]
+  # catch {file delete -force $swTxt}
   
   Status ""
   update

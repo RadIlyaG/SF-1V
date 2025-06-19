@@ -830,6 +830,7 @@ proc DataPwrOnOff {run} {
   set allPass 0
   set allFail 0
   set fail ""
+  set resFail ""
   for {set i 1} {$i<=$gaSet(PowerOnOff.qty)} {incr i} {
     if {$gaSet(act)==0} {return -2}
     $gaSet(statBarShortTest) configure -text "${i}/$gaSet(PowerOnOff.qty) Pass=$allPass Fail=$allFail"
@@ -843,14 +844,22 @@ proc DataPwrOnOff {run} {
     foreach da_eth [list Data_Eth1 Data_Eth2 Data_Eth3 Data_Eth4 Data_Eth5] {
       set ret [$da_eth $i]
       incr sevev $ret
-      puts "i:$i ret:$ret sevev:$sevev"
+      if {$ret!=0} {
+        append resFail "$gaSet(fail)\n"
+      }
+      puts "i:$i ret:$ret sevev:$sevev gaSet(fail):<$gaSet(fail)> resFail:<$resFail>"
       set fail $gaSet(fail)
       AddToPairLog $gaSet(pair) "Cycle $i. Ret of $da_eth :<$ret>"
-      AddToPairLog $gaSet(pair) $fail
+      if {$ret!=0} {
+        AddToPairLog $gaSet(pair) $fail
+      }
       if {$ret=="-2"} {
         set fail "User stop"
         break
       }
+      if {$ret=="-1" && $gaSet(PowerOnOff.sof)==1} {
+        break
+      } 
       # if {$ret!=0} {        
         # incr allFail 
         # set fail $gaSet(fail)
@@ -869,10 +878,14 @@ proc DataPwrOnOff {run} {
     if {$sevev<="-2"} {
       break
     }    
+    if {$ret=="-1" && $gaSet(PowerOnOff.sof)==1} {
+      break
+    }
   }
   set gaSet(fail) $fail
   $gaSet(statBarShortTest) configure -text "Pass=$allPass Fail=$allFail"
-  AddToPairLog $gaSet(pair) "\nTotal cycles: $gaSet(PowerOnOff.qty). Passes: $allPass, Fails: $allFail" 
+  AddToPairLog $gaSet(pair) "\nTotal cycles: $gaSet(PowerOnOff.qty). \
+  Passes: $allPass, Fails: $allFail,\nResultFail:$resFail" 
   
   if {$allFail==0} {
     set ret 0
