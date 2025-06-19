@@ -931,6 +931,8 @@ proc RetriveDutFam {{dutInitName ""}} {
   } else {
     set gaSet(dutFam.dryCon) FULL
   }
+  set idx [lsearch $fieldsL $gaSet(dutFam.dryCon)]
+  set fieldsL [lreplace $fieldsL $idx $idx]
   
   if {[string match *\.RG\.* $dutInitName]} {
     set gaSet(dutFam.rg) RG
